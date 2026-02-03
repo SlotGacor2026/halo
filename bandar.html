@@ -9,115 +9,66 @@
 <link rel="stylesheet" href="css/menu.css">
 <link rel="stylesheet" href="css/animation.css">
 <style>
-body { margin:0; font-family:Arial,sans-serif; background:#0a0a0a; color:gold; }
-.header.gold { background: linear-gradient(90deg,#b8860b,#222); color:gold; padding:10px; display:flex; justify-content:space-between; align-items:center;}
-.logo{ font-size:24px; font-weight:bold;}
-.menu { display:flex; justify-content:space-around; background:#121a2a; padding:10px 0;}
-.menu button { background:transparent; border:none; color:gold; font-weight:bold; cursor:pointer; display:flex; align-items:center; gap:5px; transition:transform 0.2s;}
-.menu button:hover{transform:scale(1.05);}
-.menu button img{width:32px;height:32px;}
-table { width:100%; border-collapse:collapse; margin-top:15px; }
-table, th, td { border:1px solid gold; }
-th, td { padding:8px; text-align:center; }
-.actions button { padding:8px 12px; border-radius:8px; background:#222; color:gold; font-weight:bold; cursor:pointer; border:none; transition:transform 0.1s, box-shadow 0.2s; margin-right:5px;}
-.actions button:hover { transform:scale(1.05); box-shadow:0 0 10px gold;}
-.modal { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#222; padding:20px; border-radius:12px; color:gold; z-index:1000; width:90%; max-width:400px;}
-button.confirm, button.cancel { padding:8px 15px; border:none; border-radius:6px; font-weight:bold; cursor:pointer; margin-right:10px;}
-button.confirm { background:gold; color:#000; }
-button.cancel { background:#444; color:gold; }
+body { background:#111; color:gold; font-family:Arial, sans-serif; }
+.header { background:#222; padding:10px; text-align:center; font-size:24px; font-weight:bold; color:gold; }
+table { width:100%; border-collapse:collapse; margin-top:10px; }
+th, td { border:1px solid gold; padding:8px; text-align:center; }
+th { background:#333; }
+button { padding:5px 10px; border:none; border-radius:6px; background:gold; color:#111; font-weight:bold; cursor:pointer; }
 </style>
 </head>
 <body>
+<header class="header">Panel Bandar FANZZ777</header>
 
-<header class="header gold">
-  <div class="logo">FANZZ777 - Bandar</div>
-</header>
-
-<main class="content">
-  <h2>Kontrol Bandar</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Username</th>
-        <th>Saldo</th>
-        <th>Pending Deposit</th>
-        <th>Pending Withdraw</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody id="playerTable">
-      <!-- Data pemain akan muncul di sini -->
-    </tbody>
-  </table>
-</main>
-
-<!-- Modal ACC Deposit / Withdraw -->
-<div id="accModal" class="modal">
-  <h3 id="accTitle">ACC Transaksi</h3>
-  <p id="accInfo"></p>
-  <button class="confirm" onclick="confirmTransaction()">ACC</button>
-  <button class="cancel" onclick="closeAccModal()">Batal</button>
-</div>
+<h3>Pending Deposit / Withdraw</h3>
+<table id="pendingTable">
+  <thead>
+    <tr>
+      <th>Username</th>
+      <th>Type</th>
+      <th>Nominal</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
 
 <script>
-// Load semua pemain
-function loadPlayers(){
-  const players = JSON.parse(localStorage.getItem('players'))||[];
-  const history = JSON.parse(localStorage.getItem('history'))||[];
-  const tbody = document.getElementById('playerTable');
+// ----- BANDAR CONTROL -----
+function loadPending(){
+  const history = JSON.parse(localStorage.getItem('history')) || [];
+  const pending = history.filter(h=>!h.approved);
+  const tbody = document.querySelector('#pendingTable tbody');
   tbody.innerHTML='';
-  players.forEach(p=>{
-    const pendingDeposit = history.filter(h=>h.user===p.username && h.type==='Deposit' && !h.acc).reduce((a,b)=>a+b.amount,0);
-    const pendingWithdraw = history.filter(h=>h.user===p.username && h.type==='Withdraw' && !h.acc).reduce((a,b)=>a+b.amount,0);
-    const tr = document.createElement('tr');
-    tr.innerHTML=`
-      <td>${p.username}</td>
-      <td>${formatNumber(p.saldo)}</td>
-      <td>${pendingDeposit>0?formatNumber(pendingDeposit):'-'}</td>
-      <td>${pendingWithdraw>0?formatNumber(pendingWithdraw):'-'}</td>
-      <td>
-        ${pendingDeposit>0?'<button onclick="openAcc(\''+p.username+'\',\'Deposit\')">ACC Deposit</button>':''}
-        ${pendingWithdraw>0?'<button onclick="openAcc(\''+p.username+'\',\'Withdraw\')">ACC Withdraw</button>':''}
-      </td>
-    `;
+  pending.forEach((h,index)=>{
+    const tr=document.createElement('tr');
+    const nom = h.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g,".");
+    tr.innerHTML=`<td>${h.user}</td><td>${h.type}</td><td>${nom}</td>
+                   <td><button onclick="approve(${index})">ACC</button></td>`;
     tbody.appendChild(tr);
   });
 }
 
-// Format angka ribuan
-function formatNumber(num){ return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
+function approve(idx){
+  const history = JSON.parse(localStorage.getItem('history')) || [];
+  const entry = history.filter(h=>!h.approved)[idx];
+  if(!entry) return;
 
-// ACC Modal
-let accPlayer='', accType='';
-function openAcc(username,type){
-  accPlayer=username;
-  accType=type;
-  document.getElementById('accTitle').innerText='ACC '+type;
-  document.getElementById('accInfo').innerText=username+' - '+type;
-  document.getElementById('accModal').style.display='block';
-}
-function closeAccModal(){ document.getElementById('accModal').style.display='none'; }
-
-function confirmTransaction(){
-  const players = JSON.parse(localStorage.getItem('players'))||[];
-  const history = JSON.parse(localStorage.getItem('history'))||[];
-  const player = players.find(p=>p.username===accPlayer);
-  if(!player){ alert('Pemain tidak ditemukan!'); return; }
-
-  history.forEach(h=>{
-    if(h.user===accPlayer && h.type===accType && !h.acc){
-      h.acc=true;
-      if(accType==='Deposit') player.saldo += h.amount;
-      else if(accType==='Withdraw') player.saldo -= h.amount;
-    }
-  });
-  localStorage.setItem('players', JSON.stringify(players));
+  if(entry.type==='Withdraw'){
+    // kurangi saldo pemain
+    let players = JSON.parse(localStorage.getItem('players'))||[];
+    let player = players.find(p=>p.username===entry.user);
+    if(player && player.saldo>=entry.amount){
+      player.saldo -= entry.amount;
+      localStorage.setItem('players', JSON.stringify(players));
+    } else { alert("Saldo tidak cukup!"); return; }
+  }
+  entry.approved = true;
   localStorage.setItem('history', JSON.stringify(history));
-  closeAccModal();
-  loadPlayers();
+  loadPending();
 }
 
-loadPlayers();
+window.onload = loadPending;
 </script>
 </body>
 </html>
