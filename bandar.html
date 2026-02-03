@@ -3,82 +3,135 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FANZZ777 - Bandar Control</title>
+<title>FANZZ777 - Kontrol Bandar</title>
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/menu.css">
+<link rel="stylesheet" href="css/animation.css">
+<style>
+body { background: #121a2a; color: gold; font-family: sans-serif; margin:0; padding:0; }
+header { padding: 10px; text-align: center; font-size: 24px; font-weight: bold; }
+h3 { margin: 15px; }
+.table { width: 95%; margin: 0 auto 20px auto; border-collapse: collapse; }
+.table th, .table td { border: 1px solid gold; padding: 8px; text-align: center; }
+.table th { background: #222; }
+.button { padding: 6px 12px; border-radius: 6px; background: #222; color: gold; cursor: pointer; border: none; }
+.button:hover { background: gold; color: #222; }
+</style>
 </head>
 <body>
-<header>
-  <h1>Kontrol Bandar</h1>
-</header>
 
-<main>
-  <h2>Request Deposit & Withdraw Pemain</h2>
-  <div id="requestList"></div>
-</main>
+<header>Kontrol Bandar - FANZZ777</header>
+
+<h3>Daftar Pemain Terdaftar</h3>
+<table class="table" id="playersTable">
+  <thead>
+    <tr>
+      <th>Username</th>
+      <th>Email</th>
+      <th>E-Wallet / Bank</th>
+      <th>Saldo</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- Data pemain akan diisi lewat JS -->
+  </tbody>
+</table>
+
+<h3>Request Deposit / Withdraw</h3>
+<table class="table" id="requestsTable">
+  <thead>
+    <tr>
+      <th>Username</th>
+      <th>Tipe</th>
+      <th>Jumlah</th>
+      <th>Rekening</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- Request akan diisi lewat JS -->
+  </tbody>
+</table>
 
 <script>
-/* Bandar login statik (kamu saja) */
-const bandarUsername = "admin";
-const bandarPassword = "admin123";
+// ======= PENGAMBILAN DATA DARI LOCALSTORAGE =======
+let players = JSON.parse(localStorage.getItem('players')) || [];
+let requests = JSON.parse(localStorage.getItem('requests')) || [];
 
-/* Cek login */
-let loggedIn = false;
-while(!loggedIn){
-  let u = prompt("Username Bandar:");
-  let p = prompt("Password Bandar:");
-  if(u===bandarUsername && p===bandarPassword){
-    loggedIn = true;
-    alert("Selamat datang, Bandar!");
-  } else {
-    alert("Username / Password salah");
-  }
-}
-
-/* Render request pemain */
-function renderRequests(){
-  const list = document.getElementById("requestList");
-  list.innerHTML="";
-  let requests = JSON.parse(localStorage.getItem("pendingRequests")||"[]");
-  if(requests.length===0){
-    list.innerHTML="<p>Tidak ada request</p>";
-    return;
-  }
-  requests.forEach((r,i)=>{
-    let div = document.createElement("div");
-    div.innerHTML=`
-      <p>${r.type.toUpperCase()} | Pemain: ${r.username} | Nomor: ${r.no} | Coin: ${r.coin}</p>
-      <button onclick="approve(${i})">ACC</button>
-      <button onclick="decline(${i})">Tolak</button>
+// ======= RENDER PEMAIN =======
+function renderPlayers() {
+  const tbody = document.getElementById('playersTable').querySelector('tbody');
+  tbody.innerHTML='';
+  players.forEach(p=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML=`
+      <td>${p.username}</td>
+      <td>${p.email}</td>
+      <td>E-Wallet: ${p.ewallet}<br>Bank: ${p.bank}</td>
+      <td>${p.saldo}</td>
     `;
-    list.appendChild(div);
+    tbody.appendChild(tr);
   });
 }
 
-function approve(i){
-  let requests = JSON.parse(localStorage.getItem("pendingRequests")||"[]");
-  let req = requests[i];
-  let users = JSON.parse(localStorage.getItem("users")||"{}");
-  if(!users[req.username]) return alert("User tidak ditemukan");
-  if(req.type==="deposit") users[req.username].coin += req.coin;
-  if(req.type==="withdraw") {
-    if(users[req.username].coin>=req.coin){
-      users[req.username].coin -= req.coin;
-    } else return alert("Coin tidak cukup");
+// ======= RENDER REQUEST =======
+function renderRequests() {
+  const tbody = document.getElementById('requestsTable').querySelector('tbody');
+  tbody.innerHTML='';
+  requests.forEach((r, idx)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML=`
+      <td>${r.username}</td>
+      <td>${r.type}</td>
+      <td>${r.amount}</td>
+      <td>${r.account}</td>
+      <td>
+        <button class="button" onclick="approveRequest(${idx})">Acc</button>
+        <button class="button" onclick="rejectRequest(${idx})">Tolak</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ======= APPROVE REQUEST =======
+function approveRequest(idx) {
+  const r = requests[idx];
+  const player = players.find(p=>p.username===r.username);
+  if(!player) { alert('Pemain tidak ditemukan'); return; }
+
+  if(r.type==='Deposit') {
+    player.saldo += r.amount;
+  } else if(r.type==='Withdraw') {
+    if(player.saldo>=r.amount){
+      player.saldo -= r.amount;
+    } else {
+      alert('Saldo pemain tidak cukup!');
+      return;
+    }
   }
-  localStorage.setItem("users", JSON.stringify(users));
-  requests.splice(i,1);
-  localStorage.setItem("pendingRequests", JSON.stringify(requests));
+
+  requests.splice(idx,1);
+  saveData();
+  renderPlayers();
   renderRequests();
 }
 
-function decline(i){
-  let requests = JSON.parse(localStorage.getItem("pendingRequests")||"[]");
-  requests.splice(i,1);
-  localStorage.setItem("pendingRequests", JSON.stringify(requests));
+// ======= REJECT REQUEST =======
+function rejectRequest(idx) {
+  requests.splice(idx,1);
+  saveData();
   renderRequests();
 }
 
+// ======= SIMPAN KE LOCALSTORAGE =======
+function saveData() {
+  localStorage.setItem('players', JSON.stringify(players));
+  localStorage.setItem('requests', JSON.stringify(requests));
+}
+
+// ======= INITIAL RENDER =======
+renderPlayers();
 renderRequests();
 </script>
 </body>
