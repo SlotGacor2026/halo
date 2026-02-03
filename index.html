@@ -10,17 +10,15 @@
 <link rel="stylesheet" href="css/menu.css" />
 <link rel="stylesheet" href="css/animation.css" />
 
-<script src="js/wallet.js"></script>
-<script src="js/navigation.js"></script>
-<script src="js/interaction.js"></script>
 </head>
-
 <body>
+
 <header class="header gold">
   <div class="logo">FANZZ777</div>
   <div id="authBox"></div>
 </header>
 
+<!-- Menu utama -->
 <nav class="menu">
   <button onclick="go('slot')"><img src="assets/icons/slot.png" alt="Slot"> Slot</button>
   <button onclick="go('casino')"><img src="assets/icons/casino.png" alt="Casino"> Casino</button>
@@ -30,30 +28,96 @@
   <button onclick="go('developer')"><img src="assets/icons/developer.png" alt="Developer"> Developer</button>
 </nav>
 
+<!-- Banner slider -->
 <section class="banner">
   <div class="banner-slider">
-    <img src="assets/banners/banner_main.jpg" alt="Banner Main">
-    <img src="assets/banners/banner_pgsoft.jpg" alt="Banner PGSoft">
-    <img src="assets/banners/banner_pragmatic.jpg" alt="Banner Pragmatic">
-    <img src="assets/banners/banner_TopUp.jpg" alt="Banner TopUp">
-    <img src="assets/banners/banner_jualbeli.jpg" alt="Banner JualBeli">
-    <img src="assets/banners/banner_saya.jpg" alt="Banner Saya">
-    <img src="assets/banners/banner_teman.jpg" alt="Banner Teman">
-    <img src="assets/banners/banner_foto1.jpg" alt="Banner Foto1">
-    <img src="assets/banners/banner_foto2.jpg" alt="Banner Foto2">
-    <img src="assets/banners/banner_foto3.jpg" alt="Banner Foto3">
+    <img src="assets/banners/banner_main.jpg" alt="Banner Main" loading="lazy">
+    <img src="assets/banners/banner_pgsoft.jpg" alt="Banner PGSoft" loading="lazy">
+    <img src="assets/banners/banner_pragmatic.jpg" alt="Banner Pragmatic" loading="lazy">
+    <img src="assets/banners/banner_topup.jpg" alt="Banner TopUp" loading="lazy">
+    <img src="assets/banners/banner_jualbeli.jpg" alt="Banner JualBeli" loading="lazy">
+    <img src="assets/banners/banner_saya.jpg" alt="Banner Saya" loading="lazy">
+    <img src="assets/banners/banner_teman.jpg" alt="Banner Teman" loading="lazy">
+    <img src="assets/banners/banner_foto1.jpg" alt="Banner Foto1" loading="lazy">
+    <img src="assets/banners/banner_foto2.jpg" alt="Banner Foto2" loading="lazy">
+    <img src="assets/banners/banner_foto3.jpg" alt="Banner Foto3" loading="lazy">
   </div>
 </section>
 
+<!-- Menu Deposit / Withdraw / Histori / Leaderboard / Logout -->
 <main id="panel" class="content">
   <h2>Demo Lobby (POINT)</h2>
   <div class="actions">
-    <button onclick="depositUI()"><img src="assets/icons/deposit.png"> Deposit</button>
-    <button onclick="withdrawUI()"><img src="assets/icons/withdraw.png"> Withdraw</button>
-    <button onclick="showHistory()"><img src="assets/icons/history.png"> Histori</button>
-    <button onclick="showLeaderboard()"><img src="assets/icons/leaderboard.png"> Leaderboard</button>
-    <button onclick="logout()"><img src="assets/icons/logout.png"> Logout</button>
+    <button onclick="deposit()"><img src="assets/icons/deposit.png" alt="Deposit"> Deposit</button>
+    <button onclick="withdraw()"><img src="assets/icons/withdraw.png" alt="Withdraw"> Withdraw</button>
+    <button onclick="showHistory()"><img src="assets/icons/history.png" alt="Histori"> Histori</button>
+    <button onclick="showLeaderboard()"><img src="assets/icons/leaderboard.png" alt="Leaderboard"> Leaderboard</button>
+    <button onclick="logout()"><img src="assets/icons/logout.png" alt="Logout"> Logout</button>
   </div>
 </main>
+
+<script src="js/data-games.js"></script>
+<script src="js/render-games.js"></script>
+<script src="js/wallet.js"></script>
+<script src="js/history.js"></script>
+<script src="js/navigation.js"></script>
+<script src="js/interaction.js"></script>
+
+<script>
+// ==========================
+// Fungsi navigasi halaman
+// ==========================
+function go(page){
+  window.location.href = `pages/${page}.html`;
+}
+
+// ==========================
+// Deposit / Withdraw dengan cek ACC Bandar
+// ==========================
+function deposit(){
+  const user = JSON.parse(localStorage.getItem("currentUser"));
+  if(!user) return alert("Login dulu!");
+  if(!user.acc) return alert("Deposit harus di-ACC bandar dulu!");
+  let jumlah = prompt("Masukkan jumlah deposit:");
+  if(jumlah && !isNaN(jumlah)){
+    user.saldo = (user.saldo||0) + parseFloat(jumlah);
+    saveCurrentUser(user);
+    alert("Deposit berhasil! Saldo: "+user.saldo);
+  }
+}
+
+function withdraw(){
+  const user = JSON.parse(localStorage.getItem("currentUser"));
+  if(!user) return alert("Login dulu!");
+  if(!user.acc) return alert("Withdraw harus di-ACC bandar dulu!");
+  let jumlah = prompt("Masukkan jumlah withdraw:");
+  if(jumlah && !isNaN(jumlah)){
+    if(user.saldo < jumlah) return alert("Saldo tidak cukup!");
+    user.saldo -= parseFloat(jumlah);
+    saveCurrentUser(user);
+    alert("Withdraw berhasil! Saldo: "+user.saldo);
+  }
+}
+
+function saveCurrentUser(user){
+  localStorage.setItem("currentUser", JSON.stringify(user));
+  const users = JSON.parse(localStorage.getItem("users")||"[]");
+  const idx = users.findIndex(u=>u.username===user.username);
+  if(idx!==-1){
+    users[idx] = user;
+    localStorage.setItem("users", JSON.stringify(users));
+  }
+}
+
+// ==========================
+// Logout
+// ==========================
+function logout(){
+  localStorage.removeItem("currentUser");
+  alert("Logout berhasil!");
+  location.reload();
+}
+</script>
+
 </body>
-</html>
+                                 </html>
