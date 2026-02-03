@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mahjong Ways 3</title>
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/games.css">
+<link rel="stylesheet" href="../css/animation.css">
+</head>
+<body>
+<h2>Mahjong Ways 3</h2>
+
+<div id="reel" class="game-grid">
+  <img src="../assets/thumbnails/mahjong_ways_3.png" class="game-card spin-glow">
+  <img src="../assets/thumbnails/mahjong_ways_3.png" class="game-card spin-glow">
+  <img src="../assets/thumbnails/mahjong_ways_3.png" class="game-card spin-glow">
+</div>
+
+<div style="text-align:center; margin-top:20px;">
+  <button onclick="spin()" class="btn-press">Spin</button>
+  <button onclick="autoplay()" class="btn-press">Autoplay</button>
+</div>
+
+<script>
+let autoplayInterval3;
+function spin(){
+  const reels=document.querySelectorAll("#reel img");
+  reels.forEach((r,index)=>{
+    r.style.transition="transform 1.2s ease-in-out";
+    r.style.transform=`translateY(${Math.random()*180}px)`;
+    setTimeout(()=>r.style.transform="translateY(0)",1200+index*100);
+  });
+
+  reels.forEach(r=>{
+    r.classList.add("gold-pulse");
+    setTimeout(()=>r.classList.remove("gold-pulse"),1100);
+  });
+
+  if(Math.random()<0.3){
+    const win=document.createElement("div");
+    win.className="big-win"; win.textContent="BIG WIN!";
+    document.body.appendChild(win);
+    setTimeout(()=>win.remove(),1600);
+  }
+}
+
+function autoplay(){
+  if(autoplayInterval3){ clearInterval(autoplayInterval3); autoplayInterval3=null; }
+  else autoplayInterval3=setInterval(spin,2200);
+}
+</script>
+</body>
+</html>
