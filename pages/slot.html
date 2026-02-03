@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,33 +16,23 @@
 
 <nav>
   <ul class="menu">
-    <li><a href="index.html">Home</a></li>
+    <li><a href="../index.html">Home</a></li>
     <li><a href="slot.html" class="active">Slot</a></li>
     <li><a href="casino.html">Casino</a></li>
     <li><a href="togel.html">Togel</a></li>
     <li><a href="arcade.html">Arcade</a></li>
     <li><a href="poker.html">Poker</a></li>
-    <li><a href="developer.html">Developer Fandi</a></li>
+    <li><a href="developer.html">Developer</a></li>
   </ul>
 </nav>
 
 <main>
   <h2>Slot Games</h2>
-
-  <div id="game-grid" class="game-grid">
-    <!-- Game cards akan di-render lewat JS -->
-  </div>
+  <div id="game-grid" class="game-grid"></div>
 </main>
 
-<script src="../js/data-games.js"></script>
-<script src="../js/render-games.js"></script>
-<script src="../js/wallet.js"></script>
-<script src="../js/history.js"></script>
-<script src="../js/navigation.js"></script>
-<script src="../js/interaction.js"></script>
-
 <script>
-// Render mini-games spesifik
+// Slot games list
 const slotGames = [
   {id:1, name:"Mahjong Ways 1", html:"mahjong_ways_1.html", img:"mahjong_ways_1.png"},
   {id:2, name:"Mahjong Ways 2", html:"mahjong_ways_2.html", img:"mahjong_ways_2.png"},
@@ -52,7 +42,6 @@ const slotGames = [
 ];
 
 const gameGrid = document.getElementById("game-grid");
-
 slotGames.forEach(game=>{
   const card = document.createElement("div");
   card.className="game-card spin-glow";
@@ -60,9 +49,14 @@ slotGames.forEach(game=>{
     <img src="../assets/thumbnails/${game.img}" alt="${game.name}">
     <h3>${game.name}</h3>
   `;
-  card.onclick = ()=>window.location.href=game.html;
+  card.onclick = ()=>{
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    if(!currentUser) return alert("Login dulu!");
+    if(!currentUser.acc) return alert("Permainan harus di-ACC bandar dulu!");
+    window.location.href = game.html;
+  };
   gameGrid.appendChild(card);
 });
 </script>
 </body>
-  </html>
+</html>
