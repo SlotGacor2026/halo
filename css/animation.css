@@ -2,3 +2,50 @@
 .game-card:hover{transform:scale(1.05) rotateX(6deg);box-shadow:0 0 25px gold}
 .banner img{animation:glow 3s infinite alternate}
 @keyframes glow{from{filter:drop-shadow(0 0 5px gold)}to{filter:drop-shadow(0 0 25px gold)}}
+
+/* ===== interaction.js animation ===== */
+
+.btn-press{
+  transform:scale(.95);
+  transition:.1s;
+}
+
+.spin-glow{
+  box-shadow:0 0 30px gold;
+  animation:shake .4s;
+}
+
+@keyframes shake{
+  0%{transform:translateX(0)}
+  25%{transform:translateX(-4px)}
+  50%{transform:translateX(4px)}
+  75%{transform:translateX(-4px)}
+  100%{transform:translateX(0)}
+}
+
+.gold-pulse{
+  animation:pulse 1.8s infinite;
+}
+
+@keyframes pulse{
+  0%{box-shadow:0 0 10px gold}
+  50%{box-shadow:0 0 30px gold}
+  100%{box-shadow:0 0 10px gold}
+}
+
+.big-win{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.7);
+  display:grid;
+  place-items:center;
+  font-size:48px;
+  color:gold;
+  z-index:9999;
+  animation:pop 1s;
+}
+
+@keyframes pop{
+  0%{transform:scale(.5);opacity:0}
+  100%{transform:scale(1);opacity:1}
+      }
