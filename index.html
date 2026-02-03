@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="css/menu.css" />
 <link rel="stylesheet" href="css/animation.css" />
 
-<!-- Firebase -->
+<!-- Firebase (Compat for simplicity) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -23,94 +23,30 @@ firebase.initializeApp({
 });
 const auth = firebase.auth();
 const db = firebase.firestore();
+let currentUser = null;
+
+auth.onAuthStateChanged(user=>{
+  currentUser = user;
+  const authBox = document.getElementById("authBox");
+  if(user){
+    authBox.innerHTML = `Hello, ${user.email}`;
+  }else{
+    authBox.innerHTML = `<button onclick="showLogin()">Login / Daftar</button>`;
+  }
+});
 </script>
 
-<style>
-/* Slider wrapper */
-.banner-slider {
-  display: flex;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  gap: 10px;
-}
-.banner-slider img {
-  width: 100%;
-  max-height: 200px;
-  border-radius: 12px;
-  flex-shrink: 0;
-}
-
-/* Hide scrollbar */
-.banner-slider::-webkit-scrollbar { display: none; }
-.banner-slider { -ms-overflow-style: none; scrollbar-width: none; }
-</style>
-
 </head>
+
 <body>
 <header class="header gold">
   <div class="logo">FANZZ777</div>
   <div id="authBox"></div>
 </header>
 
+<!-- Menu utama -->
 <nav class="menu">
   <button onclick="go('slot')"><img src="assets/icons/slot.png" alt="Slot"> Slot</button>
-  <button onclick="go('casino')"><img src="assets/icons/casino.png" alt="Casino"> Casino</button>
-  <button onclick="go('togel')"><img src="assets/icons/togel.png" alt="Togel"> Togel</button>
-  <button onclick="go('arcade')"><img src="assets/icons/arcade.png" alt="Arcade"> Arcade</button>
-  <button onclick="go('poker')"><img src="assets/icons/poker.png" alt="Poker"> Poker</button>
-  <button onclick="go('developer')"><img src="assets/icons/developer.png" alt="Developer"> Developer</button>
-</nav>
-
-<!-- Banner slider -->
-<section class="banner">
-  <div id="slider" class="banner-slider">
-    <img src="assets/banners/banner_main.jpg" alt="Banner Main" loading="lazy">
-    <img src="assets/banners/banner_pgsoft.jpg" alt="Banner PGSoft" loading="lazy">
-    <img src="assets/banners/banner_pragmatic.jpg" alt="Banner Pragmatic" loading="lazy">
-    <img src="assets/banners/banner_TopUp.jpg" alt="Banner TopUp" loading="lazy">
-    <img src="assets/banners/banner_jualbeli.jpg" alt="Banner JualBeli" loading="lazy">
-    <img src="assets/banners/banner_saya.jpg" alt="Banner Saya" loading="lazy">
-    <img src="assets/banners/banner_teman.jpg" alt="Banner Teman" loading="lazy">
-    <img src="assets/banners/banner_foto1.jpg" alt="Banner Foto 1" loading="lazy">
-    <img src="assets/banners/banner_foto2.jpg" alt="Banner Foto 2" loading="lazy">
-    <img src="assets/banners/banner_foto3.jpg" alt="Banner Foto 3" loading="lazy">
-  </div>
-</section>
-
-<main id="panel" class="content">
-  <h2>Demo Lobby (POINT)</h2>
-  <div class="actions">
-    <button onclick="deposit()"><img src="assets/icons/deposit.png" alt="Deposit"> Deposit</button>
-    <button onclick="withdraw()"><img src="assets/icons/withdraw.png" alt="Withdraw"> Withdraw</button>
-    <button onclick="showHistory()"><img src="assets/icons/history.png" alt="Histori"> Histori</button>
-    <button onclick="showLeaderboard()"><img src="assets/icons/leaderboard.png" alt="Leaderboard"> Leaderboard</button>
-    <button onclick="logout()"><img src="assets/icons/logout.png" alt="Logout"> Logout</button>
-  </div>
-</main>
-
-<script src="js/data-games.js"></script>
-<script src="js/render-games.js"></script>
-<script src="js/wallet.js"></script>
-<script src="js/history.js"></script>
-<script src="js/navigation.js"></script>
-<script src="js/interaction.js"></script>
-
-<script>
-// Slider otomatis
-const slider = document.getElementById('slider');
-let scrollAmount = 0;
-const scrollStep = 300; // tiap klik / scroll berapa px
-const scrollDelay = 3000; // tiap 3 detik otomatis
-
-setInterval(() => {
-  if (scrollAmount >= slider.scrollWidth - slider.clientWidth) scrollAmount = 0;
-  else scrollAmount += scrollStep;
-  slider.scrollTo({ left: scrollAmount, behavior: 'smooth' });
-}, scrollDelay);
-</script>
-
-</body>
-  </html>  <button onclick="go('slot')"><img src="assets/icons/slot.png" alt="Slot"> Slot</button>
   <button onclick="go('casino')"><img src="assets/icons/casino.png" alt="Casino"> Casino</button>
   <button onclick="go('togel')"><img src="assets/icons/togel.png" alt="Togel"> Togel</button>
   <button onclick="go('arcade')"><img src="assets/icons/arcade.png" alt="Arcade"> Arcade</button>
@@ -128,9 +64,6 @@ setInterval(() => {
     <img src="assets/banners/banner_jualbeli.jpg" alt="Banner Jual Beli" loading="lazy">
     <img src="assets/banners/banner_saya.jpg" alt="Banner Saya" loading="lazy">
     <img src="assets/banners/banner_teman.jpg" alt="Banner Teman" loading="lazy">
-    <img src="assets/banners/banner_foto1.jpg" alt="Banner Foto1" loading="lazy">
-    <img src="assets/banners/banner_foto2.jpg" alt="Banner Foto2" loading="lazy">
-    <img src="assets/banners/banner_foto3.jpg" alt="Banner Foto3" loading="lazy">
   </div>
 </section>
 
@@ -146,77 +79,40 @@ setInterval(() => {
   </div>
 </main>
 
-<script src="js/data-games.js"></script>
-<script src="js/render-games.js"></script>
-<script src="js/wallet.js"></script>
-<script src="js/history.js"></script>
-<script src="js/navigation.js"></script>
-<script src="js/interaction.js"></script>
-</body>
-</html>  <button onclick="go('slot')"><img src="assets/icons/slot.png" alt="Slot"> Slot</button>
-  <button onclick="go('casino')"><img src="assets/icons/casino.png" alt="Casino"> Casino</button>
-  <button onclick="go('togel')"><img src="assets/icons/togel.png" alt="Togel"> Togel</button>
-  <button onclick="go('arcade')"><img src="assets/icons/arcade.png" alt="Arcade"> Arcade</button>
-  <button onclick="go('poker')"><img src="assets/icons/poker.png" alt="Poker"> Poker</button>
-  <button onclick="go('developer')"><img src="assets/icons/developer.png" alt="Developer"> Developer</button>
-</nav>
-
-<!-- Banner slider -->
-<section class="banner">
-  <div class="banner-slider">
-    <img src="assets/banners/banner_main.jpg" alt="Banner Main" loading="lazy">
-    <img src="assets/banners/banner_pgsoft.jpg" alt="Banner PGSoft" loading="lazy">
-    <img src="assets/banners/banner_pragmatic.jpg" alt="Banner Pragmatic" loading="lazy">
-  </div>
-</section>
-
-<!-- Menu Deposit / Withdraw / Histori / Leaderboard / Logout -->
-<main id="panel" class="content">
-  <h2>Demo Lobby (POINT)</h2>
-  <div class="actions">
-    <button onclick="deposit()"><img src="assets/icons/deposit.png" alt="Deposit"> Deposit</button>
-    <button onclick="withdraw()"><img src="assets/icons/withdraw.png" alt="Withdraw"> Withdraw</button>
-    <button onclick="showHistory()"><img src="assets/icons/history.png" alt="Histori"> Histori</button>
-    <button onclick="showLeaderboard()"><img src="assets/icons/leaderboard.png" alt="Leaderboard"> Leaderboard</button>
-    <button onclick="logout()"><img src="assets/icons/logout.png" alt="Logout"> Logout</button>
-  </div>
-</main>
-
-<script src="js/data-games.js"></script>
-<script src="js/render-games.js"></script>
-<script src="js/wallet.js"></script>
-<script src="js/history.js"></script>
-<script src="js/navigation.js"></script>
-<script src="js/interaction.js"></script>
-</body>
-  </html>  <button onclick="go('casino')"><img src="assets/icons/casino.png">Casino</button>
-  <button onclick="go('togel')"><img src="assets/icons/togel.png">Togel</button>
-  <button onclick="go('arcade')"><img src="assets/icons/arcade.png">Arcade</button>
-  <button onclick="go('poker')"><img src="assets/icons/poker.png">Poker</button>
-  <button onclick="go('developer')"><img src="assets/icons/developer.png">Developer</button>
-</nav>
-
-<section class="banner">
-  <!-- Banner utama -->
-  <img src="assets/banners/banner_main.jpg" alt="FANZZ777 Banner" loading="lazy">
-
-  <!-- Banner PGSoft -->
-  <img src="assets/banners/banner_pgsoft.jpg" alt="PGSoft Banner" loading="lazy">
-
-  <!-- Banner Pragmatic -->
-  <img src="assets/banners/banner_pragmatic.jpg" alt="Pragmatic Banner" loading="lazy">
-</section>
-
-<main id="panel" class="content">
-  <h2>Demo Lobby (POINT)</h2>
-  <div class="actions">
-    <button onclick="deposit()">Deposit</button>
-    <button onclick="withdraw()">Withdraw</button>
-    <button onclick="showHistory()">Histori</button>
-    <button onclick="showLeaderboard()">Leaderboard</button>
-    <button onclick="logout()">Logout</button>
-  </div>
-</main>
+<!-- Modal Daftar / Login -->
+<div id="loginBox" style="display:none;">
+  <h3>Login / Daftar</h3>
+  <form id="registerForm">
+    <input type="text" id="username" placeholder="Username" required>
+    <input type="password" id="password" placeholder="Password" required>
+    <input type="password" id="confirmPassword" placeholder="Konfirmasi Password" required>
+    <input type="email" id="email" placeholder="Email" required>
+    <select id="ewallet">
+      <option value="">Pilih e-wallet</option>
+      <option value="dana">Dana</option>
+      <option value="gopay">GoPay</option>
+      <option value="shopeepay">Shopee Pay</option>
+      <option value="ovo">OVO</option>
+    </select>
+    <input type="text" id="ewalletNumber" placeholder="Masukkan Nomor E-wallet">
+    <select id="bank">
+      <option value="">Pilih bank</option>
+      <option value="bri">BRI</option>
+      <option value="bni">BNI</option>
+      <option value="bpddiy">BPDDIY</option>
+      <option value="chimbi">CHIMBI</option>
+      <option value="mandiri">Mandiri</option>
+      <option value="bca">BCA</option>
+    </select>
+    <input type="text" id="bankNumber" placeholder="Masukkan Nomor Bank">
+    <input type="text" id="referral" placeholder="Kode Referral (Opsional)">
+    <div class="form-actions">
+      <button type="button" onclick="closeRegister()">Batal</button>
+      <button type="submit">Konfirmasi</button>
+    </div>
+    <p id="registerMessage"></p>
+  </form>
+</div>
 
 <script src="js/data-games.js"></script>
 <script src="js/render-games.js"></script>
@@ -224,34 +120,72 @@ setInterval(() => {
 <script src="js/history.js"></script>
 <script src="js/navigation.js"></script>
 <script src="js/interaction.js"></script>
+
+<script>
+// Form login / daftar
+function showLogin(){ document.getElementById("loginBox").style.display="block"; }
+function closeRegister(){ document.getElementById("loginBox").style.display="none"; }
+
+const registerForm = document.getElementById("registerForm");
+registerForm.addEventListener("submit", function(e){
+  e.preventDefault();
+  
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
+  const email = document.getElementById("email").value.trim();
+  const ewallet = document.getElementById("ewallet").value;
+  const ewalletNumber = document.getElementById("ewalletNumber").value.trim();
+  const bank = document.getElementById("bank").value;
+  const bankNumber = document.getElementById("bankNumber").value.trim();
+  const referral = document.getElementById("referral").value.trim();
+
+  if(!/^[a-zA-Z0-9]+$/.test(username)){
+    document.getElementById("registerMessage").innerText = "Username harus huruf/angka!";
+    return;
+  }
+  if(!/^[a-zA-Z0-9@#*_$]+$/.test(password)){
+    document.getElementById("registerMessage").innerText = "Password hanya huruf, angka, @ # * _ $";
+    return;
+  }
+  if(password !== confirmPassword){
+    document.getElementById("registerMessage").innerText = "Password & Konfirmasi tidak sama!";
+    return;
+  }
+  if(!/@gmail\.com$/.test(email)){
+    document.getElementById("registerMessage").innerText = "Email harus @gmail.com";
+    return;
+  }
+  if(!ewallet){
+    document.getElementById("registerMessage").innerText = "Pilih e-wallet!";
+    return;
+  }
+  if(!bank){
+    document.getElementById("registerMessage").innerText = "Pilih bank!";
+    return;
+  }
+
+  auth.createUserWithEmailAndPassword(email,password)
+    .then(userCredential=>{
+      const uid = userCredential.user.uid;
+      db.collection("users").doc(uid).set({username, ewallet, ewalletNumber, bank, bankNumber, referral});
+      document.getElementById("registerMessage").innerText="Akun berhasil dibuat!";
+      registerForm.reset();
+      closeRegister();
+    })
+    .catch(err=>document.getElementById("registerMessage").innerText=err.message);
+});
+
+// Proteksi akses menu slot/game
+function go(page){
+  if(!currentUser){
+    showLogin();
+    return;
+  }
+  window.location.href=`pages/${page}.html`;
+}
+
+function logout(){ auth.signOut(); }
+</script>
 </body>
-  </html>  <button onclick="go('casino')"><img src="assets/icons/casino.png">Casino</button>
-  <button onclick="go('togel')"><img src="assets/icons/togel.png">Togel</button>
-  <button onclick="go('arcade')"><img src="assets/icons/arcade.png">Arcade</button>
-  <button onclick="go('poker')"><img src="assets/icons/poker.png">Poker</button>
-  <button onclick="go('developer')"><img src="assets/icons/developer.png">Developer</button>
-</nav>
-
-<section class="banner">
-  <img src="assets/banners/banner_main.jpg" loading="lazy">
-</section>
-
-<main id="panel" class="content">
-  <h2>Demo Lobby (POINT)</h2>
-  <div class="actions">
-    <button onclick="deposit()">Deposit</button>
-    <button onclick="withdraw()">Withdraw</button>
-    <button onclick="showHistory()">Histori</button>
-    <button onclick="showLeaderboard()">Leaderboard</button>
-    <button onclick="logout()">Logout</button>
-  </div>
-</main>
-
-<script src="js/data-games.js"></script>
-<script src="js/render-games.js"></script>
-<script src="js/wallet.js"></script>
-<script src="js/history.js"></script>
-<script src="js/navigation.js"></script>
-<script src="js/interaction.js"></script>
-</body>
-  </html>
+</html>
