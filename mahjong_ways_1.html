@@ -11,10 +11,10 @@
 <body>
 <h2>Mahjong Ways 1</h2>
 
-<div id="reel" style="display:flex; justify-content:center; gap:10px;">
-  <img src="../assets/thumbnails/mahjong_ways_1.png" class="game-card">
-  <img src="../assets/thumbnails/mahjong_ways_1.png" class="game-card">
-  <img src="../assets/thumbnails/mahjong_ways_1.png" class="game-card">
+<div id="reel" class="game-grid">
+  <img src="../assets/thumbnails/mahjong_ways_1.png" class="game-card spin-glow">
+  <img src="../assets/thumbnails/mahjong_ways_1.png" class="game-card spin-glow">
+  <img src="../assets/thumbnails/mahjong_ways_1.png" class="game-card spin-glow">
 </div>
 
 <div style="text-align:center; margin-top:20px;">
@@ -23,18 +23,38 @@
 </div>
 
 <script>
+let autoplayInterval;
+
 function spin(){
-  const reels = document.querySelectorAll("#reel img");
-  reels.forEach((r,i)=>{
+  const reels=document.querySelectorAll("#reel img");
+  reels.forEach((r,index)=>{
     r.style.transition="transform 1s ease-in-out";
-    r.style.transform="translateY(200px)";
-    setTimeout(()=> r.style.transform="translateY(0)", 1000);
+    r.style.transform=`translateY(${Math.random()*200}px)`;
+    setTimeout(()=>r.style.transform="translateY(0)",1000+index*100);
   });
 
-  // Big win effect
-  const win = document.createElement("div");
-  win.className="big-win";
-  win.textContent="BIG WIN!";
+  // Scatter glow effect
+  reels.forEach(r=>{
+    r.classList.add("gold-pulse");
+    setTimeout(()=>r.classList.remove("gold-pulse"),1200);
+  });
+
+  // Big Win random
+  if(Math.random()<0.4){
+    const win=document.createElement("div");
+    win.className="big-win"; win.textContent="BIG WIN!";
+    document.body.appendChild(win);
+    setTimeout(()=>win.remove(),1500);
+  }
+}
+
+function autoplay(){
+  if(autoplayInterval){ clearInterval(autoplayInterval); autoplayInterval=null; }
+  else autoplayInterval=setInterval(spin,2000);
+}
+</script>
+</body>
+</html>  win.textContent="BIG WIN!";
   document.body.appendChild(win);
   setTimeout(()=>win.remove(),1500);
 }
