@@ -1,8 +1,12 @@
+/* ===== Menu Utama ===== */
 .menu {
   display: flex;
   justify-content: space-around;
+  align-items: center;
   background: #121a2a;
   padding: 10px 0;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .menu button {
@@ -14,11 +18,7 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  transition: transform 0.2s;
-}
-
-.menu button:hover {
-  transform: scale(1.05);
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .menu button img {
@@ -26,28 +26,36 @@
   height: 32px;
 }
 
-/* Slider tambahan (optional jika perlu) */
-.banner-slider {
+.menu button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px gold;
+}
+
+/* Login / Daftar di Menu */
+.menu #loginBtn,
+.menu #registerBtn {
+  background: #222;
+  color: gold;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.2s;
+}
+
+.menu #loginBtn:hover,
+.menu #registerBtn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px gold;
+}
+
+/* ===== Tombol Aksi Deposit / Withdraw / Histori / Leaderboard / Logout ===== */
+.actions {
   display: flex;
-  overflow-x: auto;
-  gap: 10px;
-  scroll-behavior: smooth;
-}
-
-.banner-slider img {
-  width: 100%;
-  max-height: 200px;
-  border-radius: 12px;
-  flex-shrink: 0;
-}
-
-.banner-slider::-webkit-scrollbar {
-  display: none;
-}
-.banner-slider { -ms-overflow-style: none; scrollbar-width: none; }  display: flex;
-  justify-content: center;
   flex-wrap: wrap;
   gap: 12px;
+  justify-content: center;
   margin: 15px 0;
 }
 
@@ -66,7 +74,7 @@
 }
 
 .actions button img {
-  width: 32px; /* bisa lebih besar untuk PNG */
+  width: 32px;
   height: 32px;
 }
 
@@ -90,4 +98,53 @@
   border-radius: 12px;
   max-height: 200px;
   object-fit: cover;
-    }
+}
+
+/* Hilangkan scrollbar */
+.banner-slider::-webkit-scrollbar {
+  display: none;
+}
+.banner-slider { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ===== WhatsApp Floating Button ===== */
+#waButton {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 60px;
+  height: 60px;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: pulse 1.5s infinite;
+  transition: transform 0.2s;
+}
+
+#waButton img {
+  width: 100%;
+  height: 100%;
+}
+
+/* Animasi pulse */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+#waButton:hover {
+  transform: scale(1.3);
+}
+
+/* ===== Responsive ===== */
+@media screen and (max-width: 768px) {
+  .menu {
+    flex-direction: column;
+    gap: 6px;
+  }
+  .actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
