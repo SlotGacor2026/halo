@@ -10,32 +10,9 @@
 <link rel="stylesheet" href="css/menu.css" />
 <link rel="stylesheet" href="css/animation.css" />
 
-<!-- Firebase (Compat for simplicity) -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-<script>
-firebase.initializeApp({
-  apiKey: "ISI_API_KEY",
-  authDomain: "ISI_PROJECT.firebaseapp.com",
-  projectId: "ISI_PROJECT_ID"
-});
-const auth = firebase.auth();
-const db = firebase.firestore();
-let currentUser = null;
-
-auth.onAuthStateChanged(user=>{
-  currentUser = user;
-  const authBox = document.getElementById("authBox");
-  if(user){
-    authBox.innerHTML = `Hello, ${user.email}`;
-  }else{
-    authBox.innerHTML = `<button onclick="showLogin()">Login / Daftar</button>`;
-  }
-});
-</script>
-
+<script src="js/wallet.js"></script>
+<script src="js/navigation.js"></script>
+<script src="js/interaction.js"></script>
 </head>
 
 <body>
@@ -44,7 +21,6 @@ auth.onAuthStateChanged(user=>{
   <div id="authBox"></div>
 </header>
 
-<!-- Menu utama -->
 <nav class="menu">
   <button onclick="go('slot')"><img src="assets/icons/slot.png" alt="Slot"> Slot</button>
   <button onclick="go('casino')"><img src="assets/icons/casino.png" alt="Casino"> Casino</button>
@@ -54,138 +30,30 @@ auth.onAuthStateChanged(user=>{
   <button onclick="go('developer')"><img src="assets/icons/developer.png" alt="Developer"> Developer</button>
 </nav>
 
-<!-- Banner slider -->
 <section class="banner">
   <div class="banner-slider">
-    <img src="assets/banners/banner_main.jpg" alt="Banner Main" loading="lazy">
-    <img src="assets/banners/banner_pgsoft.jpg" alt="Banner PGSoft" loading="lazy">
-    <img src="assets/banners/banner_pragmatic.jpg" alt="Banner Pragmatic" loading="lazy">
-    <img src="assets/banners/banner_TopUp.jpg" alt="Banner TopUp" loading="lazy">
-    <img src="assets/banners/banner_jualbeli.jpg" alt="Banner Jual Beli" loading="lazy">
-    <img src="assets/banners/banner_saya.jpg" alt="Banner Saya" loading="lazy">
-    <img src="assets/banners/banner_teman.jpg" alt="Banner Teman" loading="lazy">
+    <img src="assets/banners/banner_main.jpg" alt="Banner Main">
+    <img src="assets/banners/banner_pgsoft.jpg" alt="Banner PGSoft">
+    <img src="assets/banners/banner_pragmatic.jpg" alt="Banner Pragmatic">
+    <img src="assets/banners/banner_TopUp.jpg" alt="Banner TopUp">
+    <img src="assets/banners/banner_jualbeli.jpg" alt="Banner JualBeli">
+    <img src="assets/banners/banner_saya.jpg" alt="Banner Saya">
+    <img src="assets/banners/banner_teman.jpg" alt="Banner Teman">
+    <img src="assets/banners/banner_foto1.jpg" alt="Banner Foto1">
+    <img src="assets/banners/banner_foto2.jpg" alt="Banner Foto2">
+    <img src="assets/banners/banner_foto3.jpg" alt="Banner Foto3">
   </div>
 </section>
 
-<!-- Menu Deposit / Withdraw / Histori / Leaderboard / Logout -->
 <main id="panel" class="content">
   <h2>Demo Lobby (POINT)</h2>
   <div class="actions">
-    <button onclick="deposit()"><img src="assets/icons/deposit.png" alt="Deposit"> Deposit</button>
-    <button onclick="withdraw()"><img src="assets/icons/withdraw.png" alt="Withdraw"> Withdraw</button>
-    <button onclick="showHistory()"><img src="assets/icons/history.png" alt="Histori"> Histori</button>
-    <button onclick="showLeaderboard()"><img src="assets/icons/leaderboard.png" alt="Leaderboard"> Leaderboard</button>
-    <button onclick="logout()"><img src="assets/icons/logout.png" alt="Logout"> Logout</button>
+    <button onclick="depositUI()"><img src="assets/icons/deposit.png"> Deposit</button>
+    <button onclick="withdrawUI()"><img src="assets/icons/withdraw.png"> Withdraw</button>
+    <button onclick="showHistory()"><img src="assets/icons/history.png"> Histori</button>
+    <button onclick="showLeaderboard()"><img src="assets/icons/leaderboard.png"> Leaderboard</button>
+    <button onclick="logout()"><img src="assets/icons/logout.png"> Logout</button>
   </div>
 </main>
-
-<!-- Modal Daftar / Login -->
-<div id="loginBox" style="display:none;">
-  <h3>Login / Daftar</h3>
-  <form id="registerForm">
-    <input type="text" id="username" placeholder="Username" required>
-    <input type="password" id="password" placeholder="Password" required>
-    <input type="password" id="confirmPassword" placeholder="Konfirmasi Password" required>
-    <input type="email" id="email" placeholder="Email" required>
-    <select id="ewallet">
-      <option value="">Pilih e-wallet</option>
-      <option value="dana">Dana</option>
-      <option value="gopay">GoPay</option>
-      <option value="shopeepay">Shopee Pay</option>
-      <option value="ovo">OVO</option>
-    </select>
-    <input type="text" id="ewalletNumber" placeholder="Masukkan Nomor E-wallet">
-    <select id="bank">
-      <option value="">Pilih bank</option>
-      <option value="bri">BRI</option>
-      <option value="bni">BNI</option>
-      <option value="bpddiy">BPDDIY</option>
-      <option value="chimbi">CHIMBI</option>
-      <option value="mandiri">Mandiri</option>
-      <option value="bca">BCA</option>
-    </select>
-    <input type="text" id="bankNumber" placeholder="Masukkan Nomor Bank">
-    <input type="text" id="referral" placeholder="Kode Referral (Opsional)">
-    <div class="form-actions">
-      <button type="button" onclick="closeRegister()">Batal</button>
-      <button type="submit">Konfirmasi</button>
-    </div>
-    <p id="registerMessage"></p>
-  </form>
-</div>
-
-<script src="js/data-games.js"></script>
-<script src="js/render-games.js"></script>
-<script src="js/wallet.js"></script>
-<script src="js/history.js"></script>
-<script src="js/navigation.js"></script>
-<script src="js/interaction.js"></script>
-
-<script>
-// Form login / daftar
-function showLogin(){ document.getElementById("loginBox").style.display="block"; }
-function closeRegister(){ document.getElementById("loginBox").style.display="none"; }
-
-const registerForm = document.getElementById("registerForm");
-registerForm.addEventListener("submit", function(e){
-  e.preventDefault();
-  
-  const username = document.getElementById("username").value.trim();
-  const password = document.getElementById("password").value;
-  const confirmPassword = document.getElementById("confirmPassword").value;
-  const email = document.getElementById("email").value.trim();
-  const ewallet = document.getElementById("ewallet").value;
-  const ewalletNumber = document.getElementById("ewalletNumber").value.trim();
-  const bank = document.getElementById("bank").value;
-  const bankNumber = document.getElementById("bankNumber").value.trim();
-  const referral = document.getElementById("referral").value.trim();
-
-  if(!/^[a-zA-Z0-9]+$/.test(username)){
-    document.getElementById("registerMessage").innerText = "Username harus huruf/angka!";
-    return;
-  }
-  if(!/^[a-zA-Z0-9@#*_$]+$/.test(password)){
-    document.getElementById("registerMessage").innerText = "Password hanya huruf, angka, @ # * _ $";
-    return;
-  }
-  if(password !== confirmPassword){
-    document.getElementById("registerMessage").innerText = "Password & Konfirmasi tidak sama!";
-    return;
-  }
-  if(!/@gmail\.com$/.test(email)){
-    document.getElementById("registerMessage").innerText = "Email harus @gmail.com";
-    return;
-  }
-  if(!ewallet){
-    document.getElementById("registerMessage").innerText = "Pilih e-wallet!";
-    return;
-  }
-  if(!bank){
-    document.getElementById("registerMessage").innerText = "Pilih bank!";
-    return;
-  }
-
-  auth.createUserWithEmailAndPassword(email,password)
-    .then(userCredential=>{
-      const uid = userCredential.user.uid;
-      db.collection("users").doc(uid).set({username, ewallet, ewalletNumber, bank, bankNumber, referral});
-      document.getElementById("registerMessage").innerText="Akun berhasil dibuat!";
-      registerForm.reset();
-      closeRegister();
-    })
-    .catch(err=>document.getElementById("registerMessage").innerText=err.message);
-});
-
-// Proteksi akses menu slot/game
-function go(page){
-  if(!currentUser){
-    showLogin();
-    return;
-  }
-  window.location.href=`pages/${page}.html`;
-}
-
-function logout(){ auth.signOut(); }
-</script>
 </body>
 </html>
