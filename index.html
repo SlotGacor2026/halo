@@ -42,6 +42,42 @@ const db = firebase.firestore();
 </nav>
 
 <section class="banner">
+  <!-- Banner utama -->
+  <img src="assets/banners/banner_main.jpg" alt="FANZZ777 Banner" loading="lazy">
+
+  <!-- Banner PGSoft -->
+  <img src="assets/banners/banner_pgsoft.jpg" alt="PGSoft Banner" loading="lazy">
+
+  <!-- Banner Pragmatic -->
+  <img src="assets/banners/banner_pragmatic.jpg" alt="Pragmatic Banner" loading="lazy">
+</section>
+
+<main id="panel" class="content">
+  <h2>Demo Lobby (POINT)</h2>
+  <div class="actions">
+    <button onclick="deposit()">Deposit</button>
+    <button onclick="withdraw()">Withdraw</button>
+    <button onclick="showHistory()">Histori</button>
+    <button onclick="showLeaderboard()">Leaderboard</button>
+    <button onclick="logout()">Logout</button>
+  </div>
+</main>
+
+<script src="js/data-games.js"></script>
+<script src="js/render-games.js"></script>
+<script src="js/wallet.js"></script>
+<script src="js/history.js"></script>
+<script src="js/navigation.js"></script>
+<script src="js/interaction.js"></script>
+</body>
+  </html>  <button onclick="go('casino')"><img src="assets/icons/casino.png">Casino</button>
+  <button onclick="go('togel')"><img src="assets/icons/togel.png">Togel</button>
+  <button onclick="go('arcade')"><img src="assets/icons/arcade.png">Arcade</button>
+  <button onclick="go('poker')"><img src="assets/icons/poker.png">Poker</button>
+  <button onclick="go('developer')"><img src="assets/icons/developer.png">Developer</button>
+</nav>
+
+<section class="banner">
   <img src="assets/banners/banner_main.jpg" loading="lazy">
 </section>
 
