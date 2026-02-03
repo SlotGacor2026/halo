@@ -1,0 +1,4 @@
+.game-card{transition:.4s;transform-style:preserve-3d}
+.game-card:hover{transform:scale(1.05) rotateX(6deg);box-shadow:0 0 25px gold}
+.banner img{animation:glow 3s infinite alternate}
+@keyframes glow{from{filter:drop-shadow(0 0 5px gold)}to{filter:drop-shadow(0 0 25px gold)}}
