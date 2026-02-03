@@ -3,86 +3,112 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kontrol Bandar - FANZZ777</title>
+<title>FANZZ777 - Kontrol Bandar</title>
 <link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/header.css">
 <link rel="stylesheet" href="css/menu.css">
+<link rel="stylesheet" href="css/animation.css">
+<style>
+table { width:100%; border-collapse: collapse; margin-top:10px; }
+table, th, td { border:1px solid gold; }
+th, td { padding:8px; text-align:center; color:gold; }
+.pending-btn { background:#222; color:gold; border:none; padding:5px 10px; cursor:pointer; border-radius:6px; }
+.pending-btn:hover { background:gold; color:#222; }
+</style>
 </head>
 <body>
-
 <header class="header gold">
   <div class="logo">FANZZ777 - Bandar</div>
 </header>
 
 <main class="content">
-  <h2>Kontrol Bandar</h2>
+  <h2>Daftar Pemain</h2>
+  <table id="playersTable">
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Rekening / Ewallet</th>
+        <th>Saldo</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-  <!-- Daftar pemain -->
-  <section>
-    <h3>Daftar Pemain</h3>
-    <table border="1" cellpadding="5" cellspacing="0" style="width:100%; color:gold; background:#111;">
-      <thead>
-        <tr>
-          <th>Username</th>
-          <th>Saldo</th>
-          <th>Rekening/E-Wallet</th>
-        </tr>
-      </thead>
-      <tbody id="playerList"></tbody>
-    </table>
-  </section>
-
-  <!-- Histori semua pemain -->
-  <section>
-    <h3>Histori Transaksi</h3>
-    <ul id="allHistory"></ul>
-  </section>
-
-  <!-- Leaderboard -->
-  <section>
-    <h3>Leaderboard</h3>
-    <ul id="bandarLeaderboard"></ul>
-  </section>
+  <h2>Pending Deposit / Withdraw</h2>
+  <table id="pendingTable">
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Type</th>
+        <th>Nominal</th>
+        <th>Tanggal</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </main>
 
 <script>
-// ----- LOAD DATA BANDAR -----
-function loadBandarData() {
+// ----- Render daftar pemain -----
+function renderPlayers(){
   const players = JSON.parse(localStorage.getItem('players')) || [];
-  const tbody = document.getElementById('playerList');
-  tbody.innerHTML = '';
-  players.forEach(p => {
+  const tbody = document.querySelector('#playersTable tbody');
+  tbody.innerHTML='';
+  players.forEach(p=>{
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${p.username}</td><td>${p.saldo || 0}</td><td>${p.ewallet || p.bank || '-'}</td>`;
+    tr.innerHTML=`<td>${p.username}</td><td>${p.ewallet || p.bank || '-'}</td><td>${p.saldo||0}</td>`;
     tbody.appendChild(tr);
-  });
-
-  // Histori semua pemain
-  const history = JSON.parse(localStorage.getItem('history')) || [];
-  const histList = document.getElementById('allHistory');
-  histList.innerHTML = '';
-  history.forEach(h => {
-    const li = document.createElement('li');
-    li.textContent = `${h.date} - ${h.user} - ${h.type}: ${h.amount}`;
-    histList.appendChild(li);
-  });
-
-  // Leaderboard
-  const leaderboard = {};
-  history.forEach(h => {
-    if(!leaderboard[h.user]) leaderboard[h.user]=0;
-    leaderboard[h.user]+=h.amount;
-  });
-  const sorted = Object.entries(leaderboard).sort((a,b)=>b[1]-a[1]);
-  const lb = document.getElementById('bandarLeaderboard'); lb.innerHTML='';
-  sorted.forEach(([user,total])=>{
-    const li = document.createElement('li');
-    li.textContent = `${user}: ${total}`;
-    lb.appendChild(li);
   });
 }
 
-window.onload = loadBandarData;
-</script>
+// ----- Render pending deposit/withdraw -----
+function renderPending(){
+  const pending = JSON.parse(localStorage.getItem('pending')) || [];
+  const tbody = document.querySelector('#pendingTable tbody');
+  tbody.innerHTML='';
+  pending.forEach((p,index)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML=`
+      <td>${p.user}</td>
+      <td>${p.type}</td>
+      <td>${p.amount}</td>
+      <td>${p.date}</td>
+      <td>
+        <button class="pending-btn" onclick="accPending(${index})">ACC</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
 
+// ----- ACC pending -----
+function accPending(index){
+  const pending = JSON.parse(localStorage.getItem('pending')) || [];
+  const p = pending[index];
+  const players = JSON.parse(localStorage.getItem('players')) || [];
+  const player = players.find(u=>u.username===p.user);
+  if(!player){ alert("Player tidak ditemukan!"); return; }
+
+  if(p.type==='Deposit'){ player.saldo = (player.saldo||0)+p.amount; }
+  if(p.type==='Withdraw'){ player.saldo = (player.saldo||0)-p.amount; }
+
+  localStorage.setItem('players', JSON.stringify(players));
+
+  // masukkan ke history pemain
+  const history = JSON.parse(localStorage.getItem('history')) || [];
+  history.push({type:p.type, amount:p.amount, user:p.user, date:p.date});
+  localStorage.setItem('history', JSON.stringify(history));
+
+  pending.splice(index,1);
+  localStorage.setItem('pending', JSON.stringify(pending));
+
+  renderPlayers();
+  renderPending();
+}
+
+renderPlayers();
+renderPending();
+</script>
 </body>
 </html>
