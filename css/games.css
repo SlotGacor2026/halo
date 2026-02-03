@@ -1,0 +1,4 @@
+.game-grid{display:grid;grid-template-columns:repeat(auto-fill,150px);gap:12px}
+.game-card{padding:10px;border-radius:14px;background:#121a2a}
+.game-card img{width:100%;border-radius:10px}
+.pagination button{margin:2px}
