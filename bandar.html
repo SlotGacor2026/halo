@@ -3,78 +3,83 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FANZZ777 - Control Bandar</title>
+<title>FANZZ777 - Bandar Control</title>
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/menu.css">
-<link rel="stylesheet" href="css/animation.css">
 </head>
 <body>
-<header class="header gold">
-  <div class="logo">FANZZ777 - Control Bandar</div>
+<header>
+  <h1>Kontrol Bandar</h1>
 </header>
 
-<main class="content">
-  <h2>Daftar Pemain</h2>
-  <table border="1" id="playersTable">
-    <thead>
-      <tr>
-        <th>Username</th>
-        <th>Saldo</th>
-        <th>ACC Deposit</th>
-        <th>ACC Withdraw</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+<main>
+  <h2>Request Deposit & Withdraw Pemain</h2>
+  <div id="requestList"></div>
 </main>
 
 <script>
-// Cek jika bukan bandar
-const bandarPassword = "BANDAR123"; // ganti sesuai password kamu
-const entered = prompt("Masukkan password bandar:");
-if(entered !== bandarPassword){
-  alert("Akses ditolak!");
-  window.location.href="index.html";
+/* Bandar login statik (kamu saja) */
+const bandarUsername = "admin";
+const bandarPassword = "admin123";
+
+/* Cek login */
+let loggedIn = false;
+while(!loggedIn){
+  let u = prompt("Username Bandar:");
+  let p = prompt("Password Bandar:");
+  if(u===bandarUsername && p===bandarPassword){
+    loggedIn = true;
+    alert("Selamat datang, Bandar!");
+  } else {
+    alert("Username / Password salah");
+  }
 }
 
-// Load pemain dari localStorage
-function loadPlayers(){
-  const users = JSON.parse(localStorage.getItem("users") || "[]");
-  const tbody = document.querySelector("#playersTable tbody");
-  tbody.innerHTML="";
-  users.forEach((u,index)=>{
-    const tr = document.createElement("tr");
-    tr.innerHTML=`
-      <td>${u.username}</td>
-      <td>${u.saldo || 0}</td>
-      <td>${u.acc ? "✅" : "❌"}</td>
-      <td>${u.acc ? "✅" : "❌"}</td>
-      <td>
-        <button onclick="accPlayer(${index})">ACC</button>
-        <button onclick="resetSaldo(${index})">Reset Saldo</button>
-      </td>
+/* Render request pemain */
+function renderRequests(){
+  const list = document.getElementById("requestList");
+  list.innerHTML="";
+  let requests = JSON.parse(localStorage.getItem("pendingRequests")||"[]");
+  if(requests.length===0){
+    list.innerHTML="<p>Tidak ada request</p>";
+    return;
+  }
+  requests.forEach((r,i)=>{
+    let div = document.createElement("div");
+    div.innerHTML=`
+      <p>${r.type.toUpperCase()} | Pemain: ${r.username} | Nomor: ${r.no} | Coin: ${r.coin}</p>
+      <button onclick="approve(${i})">ACC</button>
+      <button onclick="decline(${i})">Tolak</button>
     `;
-    tbody.appendChild(tr);
+    list.appendChild(div);
   });
 }
 
-function accPlayer(i){
-  const users = JSON.parse(localStorage.getItem("users") || "[]");
-  users[i].acc = true;
-  localStorage.setItem("users",JSON.stringify(users));
-  loadPlayers();
+function approve(i){
+  let requests = JSON.parse(localStorage.getItem("pendingRequests")||"[]");
+  let req = requests[i];
+  let users = JSON.parse(localStorage.getItem("users")||"{}");
+  if(!users[req.username]) return alert("User tidak ditemukan");
+  if(req.type==="deposit") users[req.username].coin += req.coin;
+  if(req.type==="withdraw") {
+    if(users[req.username].coin>=req.coin){
+      users[req.username].coin -= req.coin;
+    } else return alert("Coin tidak cukup");
+  }
+  localStorage.setItem("users", JSON.stringify(users));
+  requests.splice(i,1);
+  localStorage.setItem("pendingRequests", JSON.stringify(requests));
+  renderRequests();
 }
 
-function resetSaldo(i){
-  const users = JSON.parse(localStorage.getItem("users") || "[]");
-  users[i].saldo = 0;
-  localStorage.setItem("users",JSON.stringify(users));
-  loadPlayers();
+function decline(i){
+  let requests = JSON.parse(localStorage.getItem("pendingRequests")||"[]");
+  requests.splice(i,1);
+  localStorage.setItem("pendingRequests", JSON.stringify(requests));
+  renderRequests();
 }
 
-// Inisialisasi
-loadPlayers();
+renderRequests();
 </script>
 </body>
 </html>
