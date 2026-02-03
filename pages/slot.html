@@ -1,17 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Slot - FANZZ777</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FANZZ777 Slot</title>
 <link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/menu.css">
 <link rel="stylesheet" href="../css/games.css">
 <link rel="stylesheet" href="../css/animation.css">
 </head>
-<body onload="initSlots()">
+<body>
+<header>
+  <h1>FANZZ777 - Slot Games</h1>
+</header>
 
-<h2 class="gold">Slot Games (PGSoft & Pragmatic)</h2>
-<div id="gameGrid" class="game-grid"></div>
-<div id="pagination" class="pagination"></div>
+<nav>
+  <ul class="menu">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="slot.html" class="active">Slot</a></li>
+    <li><a href="casino.html">Casino</a></li>
+    <li><a href="togel.html">Togel</a></li>
+    <li><a href="arcade.html">Arcade</a></li>
+    <li><a href="poker.html">Poker</a></li>
+    <li><a href="developer.html">Developer Fandi</a></li>
+  </ul>
+</nav>
+
+<main>
+  <h2>Slot Games</h2>
+
+  <div id="game-grid" class="game-grid">
+    <!-- Game cards akan di-render lewat JS -->
+  </div>
+</main>
 
 <script src="../js/data-games.js"></script>
 <script src="../js/render-games.js"></script>
@@ -19,5 +40,29 @@
 <script src="../js/history.js"></script>
 <script src="../js/navigation.js"></script>
 <script src="../js/interaction.js"></script>
+
+<script>
+// Render mini-games spesifik
+const slotGames = [
+  {id:1, name:"Mahjong Ways 1", html:"mahjong_ways_1.html", img:"mahjong_ways_1.png"},
+  {id:2, name:"Mahjong Ways 2", html:"mahjong_ways_2.html", img:"mahjong_ways_2.png"},
+  {id:3, name:"Mahjong Ways 3", html:"mahjong_ways_3.html", img:"mahjong_ways_3.png"},
+  {id:4, name:"Wild Bounty", html:"wild_bounty.html", img:"wild_bounty.png"},
+  {id:5, name:"Gates of Olympus", html:"gates_of_olympus.html", img:"gates_of_olympus.png"}
+];
+
+const gameGrid = document.getElementById("game-grid");
+
+slotGames.forEach(game=>{
+  const card = document.createElement("div");
+  card.className="game-card spin-glow";
+  card.innerHTML=`
+    <img src="../assets/thumbnails/${game.img}" alt="${game.name}">
+    <h3>${game.name}</h3>
+  `;
+  card.onclick = ()=>window.location.href=game.html;
+  gameGrid.appendChild(card);
+});
+</script>
 </body>
-</html>
+  </html>
