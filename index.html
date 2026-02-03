@@ -8,24 +8,6 @@
 <link rel="stylesheet" href="css/header.css">
 <link rel="stylesheet" href="css/menu.css">
 <link rel="stylesheet" href="css/animation.css">
-<style>
-/* ----- MODAL ----- */
-.modal { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
-        background:#222; padding:20px; border-radius:12px; color:gold; z-index:1000; width:90%; max-width:400px; }
-.panel { display:none; background:#111; padding:10px; border-radius:10px; color:gold; margin-top:10px; }
-.actions button img { width:32px; height:32px; margin-right:8px; }
-.banner-slider { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; gap:10px; }
-.banner-slider img { flex:0 0 100%; scroll-snap-align:start; border-radius:12px; max-height:200px; object-fit:cover; }
-.banner-slider::-webkit-scrollbar { display:none; }
-.banner-slider { -ms-overflow-style:none; scrollbar-width:none; }
-
-/* ----- WhatsApp Button ----- */
-#waButton { position:fixed; bottom:20px; left:20px; width:60px; height:60px; z-index:1000;
-            display:flex; justify-content:center; align-items:center; animation:pulse 1.5s infinite; }
-#waButton img { width:100%; height:100%; }
-@keyframes pulse { 0%{transform:scale(1);}50%{transform:scale(1.2);}100%{transform:scale(1);} }
-#waButton:hover { transform:scale(1.3); }
-</style>
 </head>
 <body>
 
@@ -61,7 +43,7 @@
 </section>
 
 <main id="panel" class="content">
-  <h2>MENU TERGACORRR🔥</h2>
+  <h2>MENU TERGACORRR🔥</h2></h2>
   <div class="actions">
     <button onclick="openDeposit()"><img src="assets/icons/deposit.png" alt="Deposit"> Deposit</button>
     <button onclick="openWithdraw()"><img src="assets/icons/withdraw.png" alt="Withdraw"> Withdraw</button>
@@ -124,16 +106,13 @@ function openDeposit() {
   document.getElementById('playerAccount').innerText = current.ewallet || current.bank || '-';
   document.getElementById('depositModal').style.display = 'block';
 }
-
 function closeDeposit(){ document.getElementById('depositModal').style.display='none'; }
 
 function openWithdraw() {
   const current = JSON.parse(localStorage.getItem('currentPlayer')) || {};
-  // tampilkan nomor pemain di withdraw
   document.getElementById('playerAccountWithdraw').innerText = current.ewallet || current.bank || '-';
   document.getElementById('withdrawModal').style.display='block';
 }
-
 function closeWithdraw(){ document.getElementById('withdrawModal').style.display='none'; }
 
 // ----- DEPOSIT -----
@@ -211,4 +190,4 @@ function logoutPlayer(){
 }
 </script>
 </body>
-                      </html>
+        </html>
