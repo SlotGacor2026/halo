@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mahjong Ways 1</title>
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/games.css">
+<link rel="stylesheet" href="../css/animation.css">
+</head>
+<body>
+<h2>Mahjong Ways 1</h2>
+
+<div id="reel" style="display:flex; justify-content:center; gap:10px;">
+  <img src="../assets/thumbnails/mahjong_ways_1.png" class="game-card">
+  <img src="../assets/thumbnails/mahjong_ways_1.png" class="game-card">
+  <img src="../assets/thumbnails/mahjong_ways_1.png" class="game-card">
+</div>
+
+<div style="text-align:center; margin-top:20px;">
+  <button onclick="spin()" class="btn-press">Spin</button>
+  <button onclick="autoplay()" class="btn-press">Autoplay</button>
+</div>
+
+<script>
+function spin(){
+  const reels = document.querySelectorAll("#reel img");
+  reels.forEach((r,i)=>{
+    r.style.transition="transform 1s ease-in-out";
+    r.style.transform="translateY(200px)";
+    setTimeout(()=> r.style.transform="translateY(0)", 1000);
+  });
+
+  // Big win effect
+  const win = document.createElement("div");
+  win.className="big-win";
+  win.textContent="BIG WIN!";
+  document.body.appendChild(win);
+  setTimeout(()=>win.remove(),1500);
+}
+
+let autoplayInterval;
+function autoplay(){
+  if(autoplayInterval){ clearInterval(autoplayInterval); autoplayInterval=null; }
+  else autoplayInterval=setInterval(spin,2000);
+}
+</script>
+
+</body>
+</html>
