@@ -1,4 +1,4 @@
-/* ===== MENU UTAMA ===== */
+/* ===== MENU ===== */
 .menu {
   display: flex;
   justify-content: space-around;
@@ -47,12 +47,18 @@
 .banner-slider::-webkit-scrollbar {
   display: none;
 }
-.banner-slider {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+
+.banner-slider { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ===== ACTION BUTTONS ===== */
+.actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 15px 0;
 }
 
-/* ===== ACTION BUTTONS (DEPOSIT/WITHDRAW/HISTORI/LEADERBOARD/LOGOUT) ===== */
 .actions button {
   display: flex;
   align-items: center;
@@ -67,54 +73,51 @@
   transition: transform 0.1s, box-shadow 0.2s;
 }
 
-.actions button img {
-  width: 32px;
-  height: 32px; /* bisa lebih besar untuk PNG logo */
-}
-
 .actions button:hover {
   transform: scale(1.05);
   box-shadow: 0 0 10px gold;
+}
+
+.actions button img {
+  width: 32px;
+  height: 32px;
 }
 
 /* ===== MODAL ===== */
 .modal {
   display: none;
   position: fixed;
-  top: 50%;
-  left: 50%;
+  top: 50%; left: 50%;
   transform: translate(-50%, -50%);
-  background: #1a2336;
+  background: #222;
   color: gold;
   padding: 20px;
   border-radius: 12px;
   z-index: 1000;
+  width: 90%;
+  max-width: 400px;
 }
 
-.modal h3 {
-  margin-top: 0;
+.panel {
+  display: none;
+  background: #111;
+  color: gold;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 10px;
 }
 
-.modal input {
+input[type="number"], input[type="text"] {
   width: 100%;
-  padding: 8px;
-  margin: 10px 0;
+  padding: 6px 10px;
+  margin: 5px 0 10px 0;
   border-radius: 6px;
-  border: 1px solid #444;
+  border: 1px solid gold;
   background: #121a2a;
   color: gold;
 }
 
-/* ===== PANEL (HISTORY / LEADERBOARD) ===== */
-.panel {
-  display: none;
-  background: #1a2336;
-  padding: 15px;
-  border-radius: 12px;
-  margin-top: 15px;
-}
-
-/* ===== WhatsApp Floating Button ===== */
+/* ===== WHATSAPP BUTTON ===== */
 #waButton {
   position: fixed;
   bottom: 20px;
@@ -126,7 +129,6 @@
   justify-content: center;
   align-items: center;
   animation: pulse 1.5s infinite;
-  transition: transform 0.2s;
 }
 
 #waButton img {
@@ -134,7 +136,6 @@
   height: 100%;
 }
 
-/* ===== Animasi Mengembang ===== */
 @keyframes pulse {
   0% { transform: scale(1); }
   50% { transform: scale(1.2); }
@@ -143,4 +144,4 @@
 
 #waButton:hover {
   transform: scale(1.3);
-  }
+}
