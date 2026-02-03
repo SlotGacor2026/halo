@@ -1,3 +1,83 @@
-.menu{display:flex;gap:8px;padding:8px;overflow:auto}
-.menu button{background:#1a2238;border-radius:12px;color:#fff}
-.menu img{width:24px;height:24px}
+/* ===== Menu Utama ===== */
+.menu {
+  display: flex;
+  justify-content: space-around;
+  background: #121a2a;
+  padding: 10px 0;
+  border-bottom: 2px solid gold;
+  flex-wrap: wrap;
+}
+
+.menu button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: none;
+  background: #1c2436;
+  color: gold;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.2s;
+}
+
+.menu button img {
+  width: 24px;
+  height: 24px;
+}
+
+.menu button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px gold;
+}
+
+/* ===== Actions: Deposit, Withdraw, Histori, Leaderboard, Logout ===== */
+.actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 15px 0;
+}
+
+.actions button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #222;
+  color: gold;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.1s, box-shadow 0.2s;
+}
+
+.actions button img {
+  width: 32px; /* bisa lebih besar untuk PNG */
+  height: 32px;
+}
+
+.actions button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px gold;
+}
+
+/* ===== Banner Slider ===== */
+.banner-slider {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  gap: 10px;
+  padding: 10px 0;
+}
+
+.banner-slider img {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  border-radius: 12px;
+  max-height: 200px;
+  object-fit: cover;
+    }
