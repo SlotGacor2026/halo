@@ -9,26 +9,33 @@
 <link rel="stylesheet" href="css/menu.css">
 <link rel="stylesheet" href="css/animation.css">
 <style>
-/* MODAL */
-.modal { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
-        background:#222; padding:20px; border-radius:12px; color:gold; z-index:1000; width:90%; max-width:400px; }
-.panel { display:none; background:#111; padding:10px; border-radius:10px; color:gold; margin-top:10px; }
-.actions button img { width:32px; height:32px; margin-right:8px; }
-.banner-slider { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; gap:10px; }
-.banner-slider img { flex:0 0 100%; scroll-snap-align:start; border-radius:12px; max-height:200px; object-fit:cover; }
-.banner-slider::-webkit-scrollbar { display:none; }
-.banner-slider { -ms-overflow-style:none; scrollbar-width:none; }
-/* WhatsApp Button */
-#waButton { position:fixed; bottom:20px; left:20px; width:60px; height:60px; z-index:1000;
-            display:flex; justify-content:center; align-items:center; animation:pulse 1.5s infinite; }
-#waButton img { width:100%; height:100%; }
-@keyframes pulse { 0%{transform:scale(1);}50%{transform:scale(1.2);}100%{transform:scale(1);} }
-#waButton:hover { transform:scale(1.3); }
+body {background:#0d0d0d; color:gold; font-family:sans-serif;}
+.header {display:flex; justify-content:space-between; align-items:center; padding:10px 20px; background:#111;}
+.header .logo {font-size:24px; font-weight:bold; color:gold;}
+.menu {display:flex; justify-content:space-around; background:#121212; padding:10px 0; flex-wrap:wrap;}
+.menu button {background:transparent; border:none; color:gold; font-weight:bold; cursor:pointer; display:flex; align-items:center; gap:5px; transition:transform 0.2s;}
+.menu button:hover {transform:scale(1.05);}
+.menu button img {width:32px; height:32px;}
+.banner-slider {display:flex; overflow-x:auto; gap:10px; scroll-snap-type:x mandatory;}
+.banner-slider img {flex:0 0 100%; scroll-snap-align:start; border-radius:12px; max-height:200px; object-fit:cover;}
+.banner-slider::-webkit-scrollbar {display:none;}
+.banner-slider {-ms-overflow-style:none; scrollbar-width:none;}
+.actions button {display:flex; align-items:center; gap:8px; padding:8px 12px; border-radius:8px; background:#222; color:gold; font-weight:bold; cursor:pointer; border:none; transition:transform 0.1s, box-shadow 0.2s;}
+.actions button img {width:32px; height:32px;}
+.actions button:hover {transform:scale(1.05); box-shadow:0 0 10px gold;}
+.modal {display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#222; padding:20px; border-radius:12px; color:gold; z-index:1000; width:90%; max-width:400px;}
+.panel {display:none; background:#111; padding:10px; border-radius:10px; color:gold; margin-top:10px;}
+input, select {width:100%; padding:8px; margin:5px 0 10px 0; border-radius:6px; border:none; outline:none; background:#333; color:gold;}
+button {cursor:pointer;}
+#waButton {position:fixed; bottom:20px; left:20px; width:60px; height:60px; z-index:1000; display:flex; justify-content:center; align-items:center; animation:pulse 1.5s infinite;}
+#waButton img {width:100%; height:100%;}
+@keyframes pulse {0%{transform:scale(1);}50%{transform:scale(1.2);}100%{transform:scale(1);}}
+#waButton:hover {transform:scale(1.3);}
 </style>
 </head>
 <body>
 
-<header class="header gold">
+<header class="header">
   <div class="logo">FANZZ777</div>
   <div id="authBox"></div>
 </header>
@@ -84,7 +91,7 @@
   <!-- Withdraw Modal -->
   <div id="withdrawModal" class="modal">
     <h3>Withdraw</h3>
-    <p>Rekening tujuan: <span id="playerAccountWithdraw"></span></p>
+    <p>Rekening kamu: <span id="playerAccountWithdraw"></span></p>
     <input type="number" id="withdrawAmount" placeholder="Ketik nominal withdraw">
     <br><br>
     <button onclick="confirmWithdraw()">Konfirmasi</button>
@@ -104,6 +111,47 @@
   </div>
 </main>
 
+<!-- Login Modal -->
+<div id="loginModal" class="modal">
+  <h3>Login</h3>
+  <input type="text" id="loginUsername" placeholder="Username">
+  <input type="password" id="loginPassword" placeholder="Password">
+  <br>
+  <button onclick="loginPlayer()">Login</button>
+  <button onclick="closeLogin()">Batal</button>
+  <p>Belum punya akun? <span style="color:gold; cursor:pointer;" onclick="openRegister()">Daftar</span></p>
+</div>
+
+<!-- Register Modal -->
+<div id="registerModal" class="modal">
+  <h3>Daftar Akun</h3>
+  <input type="text" id="regUsername" placeholder="Username">
+  <input type="password" id="regPassword" placeholder="Password">
+  <input type="password" id="regPasswordConfirm" placeholder="Konfirmasi Password">
+  <input type="email" id="regEmail" placeholder="Email (@gmail.com)">
+  <select id="regEwallet">
+    <option value="">Pilih E-Wallet</option>
+    <option value="dana">Dana</option>
+    <option value="gopay">GoPay</option>
+    <option value="shoppe pay">Shopee Pay</option>
+    <option value="ovo">OVO</option>
+  </select>
+  <input type="text" id="regEwalletNo" placeholder="Masukkan Nomor E-Wallet">
+  <select id="regBank">
+    <option value="">Pilih Bank</option>
+    <option value="bri">BRI</option>
+    <option value="bca">BCA</option>
+    <option value="bni">BNI</option>
+    <option value="chimbi niaga">Chimbi Niaga</option>
+    <option value="bpd diy">BPD DIY</option>
+  </select>
+  <input type="text" id="regBankNo" placeholder="Masukkan Nomor Rekening Bank">
+  <input type="text" id="regRef" placeholder="Kode Referral (Opsional)">
+  <br>
+  <button onclick="registerPlayer()">Konfirmasi</button>
+  <button onclick="closeRegister()">Batal</button>
+</div>
+
 <!-- WhatsApp Floating Button -->
 <a id="waButton" href="https://wa.me/6289618602130" target="_blank">
   <img src="assets/icons/whatsapp.png" alt="WhatsApp">
@@ -117,87 +165,75 @@
 <script src="js/wallet.js"></script>
 
 <script>
-// ----- MODAL OPEN/CLOSE -----
-function openDeposit() {
-  const current = JSON.parse(localStorage.getItem('currentPlayer')) || {};
-  document.getElementById('playerAccount').innerText = current.ewallet || current.bank || '-';
-  document.getElementById('depositModal').style.display = 'block';
-}
-function closeDeposit(){ document.getElementById('depositModal').style.display='none'; }
-
-function openWithdraw() {
-  const current = JSON.parse(localStorage.getItem('currentPlayer')) || {};
-  document.getElementById('playerAccountWithdraw').innerText = current.ewallet || current.bank || '-';
-  document.getElementById('withdrawModal').style.display='block';
-}
-function closeWithdraw(){ document.getElementById('withdrawModal').style.display='none'; }
-
-// ----- DEPOSIT (Pending) -----
-function confirmDeposit(){
-  const amount = parseInt(document.getElementById('depositAmount').value);
-  if(!amount){ alert("Masukkan nominal deposit!"); return; }
-
-  const player = JSON.parse(localStorage.getItem('currentPlayer')) || {};
-  // simpan pending, belum langsung nambah saldo
-  const pending = JSON.parse(localStorage.getItem('pending')) || [];
-  pending.push({type:'Deposit', amount, user:player.username, date:new Date().toLocaleString()});
-  localStorage.setItem('pending', JSON.stringify(pending));
-
-  alert("Deposit masuk pending, menunggu ACC bandar!");
-  closeDeposit();
+// ----- AUTH -----
+function renderAuthBox(){
+  const authBox = document.getElementById('authBox');
+  const current = JSON.parse(localStorage.getItem('currentPlayer'));
+  if(current){
+    authBox.innerHTML = `
+      <span>Hi, ${current.username}</span>
+      <button onclick="logoutPlayer()" style="margin-left:10px;">Logout</button>`;
+  } else {
+    authBox.innerHTML = `<button onclick="openLogin()">Login</button> <button onclick="openRegister()">Daftar</button>`;
+    openLogin(); // langsung muncul modal login
+  }
 }
 
-// ----- WITHDRAW (Pending) -----
-function confirmWithdraw(){
-  const amount = parseInt(document.getElementById('withdrawAmount').value);
-  const player = JSON.parse(localStorage.getItem('currentPlayer')) || {};
-  if(!amount){ alert("Masukkan nominal withdraw!"); return; }
-  if(amount > (player.saldo||0)){ alert("Saldo tidak cukup!"); return; }
+function openLogin(){ document.getElementById('loginModal').style.display='block'; }
+function closeLogin(){ document.getElementById('loginModal').style.display='none'; }
+function openRegister(){ closeLogin(); document.getElementById('registerModal').style.display='block'; }
+function closeRegister(){ document.getElementById('registerModal').style.display='none'; }
 
-  const pending = JSON.parse(localStorage.getItem('pending')) || [];
-  pending.push({type:'Withdraw', amount, user:player.username, date:new Date().toLocaleString()});
-  localStorage.setItem('pending', JSON.stringify(pending));
+function registerPlayer(){
+  const username = document.getElementById('regUsername').value.trim();
+  const password = document.getElementById('regPassword').value;
+  const confirm = document.getElementById('regPasswordConfirm').value;
+  const email = document.getElementById('regEmail').value.trim();
+  const ewallet = document.getElementById('regEwallet').value;
+  const ewalletNo = document.getElementById('regEwalletNo').value.trim();
+  const bank = document.getElementById('regBank').value;
+  const bankNo = document.getElementById('regBankNo').value.trim();
 
-  alert("Withdraw masuk pending, menunggu ACC bandar!");
-  closeWithdraw();
+  if(!username || !password || !confirm || !email){ alert("Field wajib diisi!"); return; }
+  if(password!==confirm){ alert("Password tidak sama!"); return; }
+  if(!email.endsWith("@gmail.com")){ alert("Email harus @gmail.com"); return; }
+
+  let players = JSON.parse(localStorage.getItem('players')) || [];
+  if(players.find(p=>p.username===username)){ alert("Username sudah dipakai!"); return; }
+
+  const newPlayer = {
+    username, password, email,
+    ewallet: ewallet && ewalletNo ? `${ewallet} (${ewalletNo})` : "",
+    bank: bank && bankNo ? `${bank} (${bankNo})` : "",
+    saldo:0,
+    referral: document.getElementById('regRef').value.trim()
+  };
+  players.push(newPlayer);
+  localStorage.setItem('players', JSON.stringify(players));
+  alert("Daftar berhasil!");
+  closeRegister();
 }
 
-// ----- HISTORI -----
-function showHistory(){
-  document.getElementById('historyPanel').style.display='block';
-  document.getElementById('leaderboardPanel').style.display='none';
-  const history = JSON.parse(localStorage.getItem('history')) || [];
-  const player = JSON.parse(localStorage.getItem('currentPlayer')) || {};
-  const list = document.getElementById('historyList');
-  list.innerHTML='';
-  history.filter(h=>h.user===player.username)
-         .forEach(h=>{
-           const li = document.createElement('li');
-           li.textContent = `${h.date} - ${h.type}: ${h.amount}`;
-           list.appendChild(li);
-         });
+function loginPlayer(){
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const players = JSON.parse(localStorage.getItem('players')) || [];
+  const player = players.find(p=>p.username===username && p.password===password);
+  if(!player){ alert("Username/Password salah!"); return; }
+  localStorage.setItem('currentPlayer', JSON.stringify(player));
+  alert("Login berhasil!");
+  closeLogin();
+  renderAuthBox();
 }
 
-// ----- LEADERBOARD -----
-function showLeaderboard(){
-  document.getElementById('leaderboardPanel').style.display='block';
-  document.getElementById('historyPanel').style.display='none';
-  const history = JSON.parse(localStorage.getItem('history')) || [];
-  const leaderboard = {};
-  history.forEach(h=>{ if(!leaderboard[h.user]) leaderboard[h.user]=0; leaderboard[h.user]+=h.amount; });
-  const sorted = Object.entries(leaderboard).sort((a,b)=>b[1]-a[1]);
-  const list = document.getElementById('leaderboardList'); list.innerHTML='';
-  sorted.forEach(([user,total])=>{
-    const li=document.createElement('li'); li.textContent=`${user}: ${total}`; list.appendChild(li);
-  });
-}
-
-// ----- LOGOUT -----
 function logoutPlayer(){
   localStorage.removeItem('currentPlayer');
+  renderAuthBox();
   alert("Logout berhasil!");
-  location.reload();
 }
+
+// Jalankan saat load
+renderAuthBox();
 </script>
 </body>
-                                                                                                      </html>
+        </html>
