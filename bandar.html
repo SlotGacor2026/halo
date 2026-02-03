@@ -3,79 +3,78 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Control Bandar - FANZZ777</title>
+<title>FANZZ777 - Control Bandar</title>
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/menu.css">
+<link rel="stylesheet" href="css/animation.css">
 </head>
 <body>
-
 <header class="header gold">
   <div class="logo">FANZZ777 - Control Bandar</div>
 </header>
 
 <main class="content">
-  <h2>Login Bandar</h2>
-  <input type="text" id="bandarUsername" placeholder="Username Bandar">
-  <input type="password" id="bandarPassword" placeholder="Password Bandar">
-  <button onclick="loginBandar()">Login</button>
-
-  <section id="bandarPanel" style="display:none;">
-    <h3>Daftar Pemain</h3>
-    <table border="1" cellpadding="5">
-      <thead>
-        <tr>
-          <th>Username</th>
-          <th>Email</th>
-          <th>E-wallet / Bank</th>
-          <th>Saldo</th>
-          <th>ACC Deposit/Withdraw</th>
-        </tr>
-      </thead>
-      <tbody id="playersTable"></tbody>
-    </table>
-  </section>
+  <h2>Daftar Pemain</h2>
+  <table border="1" id="playersTable">
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Saldo</th>
+        <th>ACC Deposit</th>
+        <th>ACC Withdraw</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </main>
 
 <script>
-const bandarCred = {username:"admin", password:"admin123"};
-
-function loginBandar(){
-  const u = document.getElementById("bandarUsername").value;
-  const p = document.getElementById("bandarPassword").value;
-  if(u===bandarCred.username && p===bandarCred.password){
-    alert("Login Bandar Berhasil!");
-    document.getElementById("bandarPanel").style.display="block";
-    loadPlayers();
-  } else alert("Username / Password salah!");
+// Cek jika bukan bandar
+const bandarPassword = "BANDAR123"; // ganti sesuai password kamu
+const entered = prompt("Masukkan password bandar:");
+if(entered !== bandarPassword){
+  alert("Akses ditolak!");
+  window.location.href="index.html";
 }
 
+// Load pemain dari localStorage
 function loadPlayers(){
   const users = JSON.parse(localStorage.getItem("users") || "[]");
-  const tbody = document.getElementById("playersTable");
+  const tbody = document.querySelector("#playersTable tbody");
   tbody.innerHTML="";
-  users.forEach((u,i)=>{
+  users.forEach((u,index)=>{
     const tr = document.createElement("tr");
     tr.innerHTML=`
       <td>${u.username}</td>
-      <td>${u.email}</td>
-      <td>${u.ewallet}(${u.ewalletNo}) / ${u.bank}(${u.bankNo})</td>
-      <td>${u.saldo||0}</td>
+      <td>${u.saldo || 0}</td>
+      <td>${u.acc ? "✅" : "❌"}</td>
+      <td>${u.acc ? "✅" : "❌"}</td>
       <td>
-        <select onchange="updateAcc(${i},this.value)">
-          <option value="pending" ${!u.acc?"selected":""}>Pending</option>
-          <option value="approved" ${u.acc?"selected":""}>Approved</option>
-        </select>
+        <button onclick="accPlayer(${index})">ACC</button>
+        <button onclick="resetSaldo(${index})">Reset Saldo</button>
       </td>
     `;
     tbody.appendChild(tr);
   });
 }
 
-function updateAcc(index,value){
+function accPlayer(i){
   const users = JSON.parse(localStorage.getItem("users") || "[]");
-  users[index].acc = value==="approved";
-  localStorage.setItem("users", JSON.stringify(users));
+  users[i].acc = true;
+  localStorage.setItem("users",JSON.stringify(users));
+  loadPlayers();
 }
+
+function resetSaldo(i){
+  const users = JSON.parse(localStorage.getItem("users") || "[]");
+  users[i].saldo = 0;
+  localStorage.setItem("users",JSON.stringify(users));
+  loadPlayers();
+}
+
+// Inisialisasi
+loadPlayers();
 </script>
 </body>
 </html>
