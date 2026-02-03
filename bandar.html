@@ -3,136 +3,86 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FANZZ777 - Kontrol Bandar</title>
+<title>Kontrol Bandar - FANZZ777</title>
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/menu.css">
-<link rel="stylesheet" href="css/animation.css">
-<style>
-body { background: #121a2a; color: gold; font-family: sans-serif; margin:0; padding:0; }
-header { padding: 10px; text-align: center; font-size: 24px; font-weight: bold; }
-h3 { margin: 15px; }
-.table { width: 95%; margin: 0 auto 20px auto; border-collapse: collapse; }
-.table th, .table td { border: 1px solid gold; padding: 8px; text-align: center; }
-.table th { background: #222; }
-.button { padding: 6px 12px; border-radius: 6px; background: #222; color: gold; cursor: pointer; border: none; }
-.button:hover { background: gold; color: #222; }
-</style>
 </head>
 <body>
 
-<header>Kontrol Bandar - FANZZ777</header>
+<header class="header gold">
+  <div class="logo">FANZZ777 - Bandar</div>
+</header>
 
-<h3>Daftar Pemain Terdaftar</h3>
-<table class="table" id="playersTable">
-  <thead>
-    <tr>
-      <th>Username</th>
-      <th>Email</th>
-      <th>E-Wallet / Bank</th>
-      <th>Saldo</th>
-    </tr>
-  </thead>
-  <tbody>
-    <!-- Data pemain akan diisi lewat JS -->
-  </tbody>
-</table>
+<main class="content">
+  <h2>Kontrol Bandar</h2>
 
-<h3>Request Deposit / Withdraw</h3>
-<table class="table" id="requestsTable">
-  <thead>
-    <tr>
-      <th>Username</th>
-      <th>Tipe</th>
-      <th>Jumlah</th>
-      <th>Rekening</th>
-      <th>Aksi</th>
-    </tr>
-  </thead>
-  <tbody>
-    <!-- Request akan diisi lewat JS -->
-  </tbody>
-</table>
+  <!-- Daftar pemain -->
+  <section>
+    <h3>Daftar Pemain</h3>
+    <table border="1" cellpadding="5" cellspacing="0" style="width:100%; color:gold; background:#111;">
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Saldo</th>
+          <th>Rekening/E-Wallet</th>
+        </tr>
+      </thead>
+      <tbody id="playerList"></tbody>
+    </table>
+  </section>
+
+  <!-- Histori semua pemain -->
+  <section>
+    <h3>Histori Transaksi</h3>
+    <ul id="allHistory"></ul>
+  </section>
+
+  <!-- Leaderboard -->
+  <section>
+    <h3>Leaderboard</h3>
+    <ul id="bandarLeaderboard"></ul>
+  </section>
+</main>
 
 <script>
-// ======= PENGAMBILAN DATA DARI LOCALSTORAGE =======
-let players = JSON.parse(localStorage.getItem('players')) || [];
-let requests = JSON.parse(localStorage.getItem('requests')) || [];
-
-// ======= RENDER PEMAIN =======
-function renderPlayers() {
-  const tbody = document.getElementById('playersTable').querySelector('tbody');
-  tbody.innerHTML='';
-  players.forEach(p=>{
+// ----- LOAD DATA BANDAR -----
+function loadBandarData() {
+  const players = JSON.parse(localStorage.getItem('players')) || [];
+  const tbody = document.getElementById('playerList');
+  tbody.innerHTML = '';
+  players.forEach(p => {
     const tr = document.createElement('tr');
-    tr.innerHTML=`
-      <td>${p.username}</td>
-      <td>${p.email}</td>
-      <td>E-Wallet: ${p.ewallet}<br>Bank: ${p.bank}</td>
-      <td>${p.saldo}</td>
-    `;
+    tr.innerHTML = `<td>${p.username}</td><td>${p.saldo || 0}</td><td>${p.ewallet || p.bank || '-'}</td>`;
     tbody.appendChild(tr);
+  });
+
+  // Histori semua pemain
+  const history = JSON.parse(localStorage.getItem('history')) || [];
+  const histList = document.getElementById('allHistory');
+  histList.innerHTML = '';
+  history.forEach(h => {
+    const li = document.createElement('li');
+    li.textContent = `${h.date} - ${h.user} - ${h.type}: ${h.amount}`;
+    histList.appendChild(li);
+  });
+
+  // Leaderboard
+  const leaderboard = {};
+  history.forEach(h => {
+    if(!leaderboard[h.user]) leaderboard[h.user]=0;
+    leaderboard[h.user]+=h.amount;
+  });
+  const sorted = Object.entries(leaderboard).sort((a,b)=>b[1]-a[1]);
+  const lb = document.getElementById('bandarLeaderboard'); lb.innerHTML='';
+  sorted.forEach(([user,total])=>{
+    const li = document.createElement('li');
+    li.textContent = `${user}: ${total}`;
+    lb.appendChild(li);
   });
 }
 
-// ======= RENDER REQUEST =======
-function renderRequests() {
-  const tbody = document.getElementById('requestsTable').querySelector('tbody');
-  tbody.innerHTML='';
-  requests.forEach((r, idx)=>{
-    const tr = document.createElement('tr');
-    tr.innerHTML=`
-      <td>${r.username}</td>
-      <td>${r.type}</td>
-      <td>${r.amount}</td>
-      <td>${r.account}</td>
-      <td>
-        <button class="button" onclick="approveRequest(${idx})">Acc</button>
-        <button class="button" onclick="rejectRequest(${idx})">Tolak</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-// ======= APPROVE REQUEST =======
-function approveRequest(idx) {
-  const r = requests[idx];
-  const player = players.find(p=>p.username===r.username);
-  if(!player) { alert('Pemain tidak ditemukan'); return; }
-
-  if(r.type==='Deposit') {
-    player.saldo += r.amount;
-  } else if(r.type==='Withdraw') {
-    if(player.saldo>=r.amount){
-      player.saldo -= r.amount;
-    } else {
-      alert('Saldo pemain tidak cukup!');
-      return;
-    }
-  }
-
-  requests.splice(idx,1);
-  saveData();
-  renderPlayers();
-  renderRequests();
-}
-
-// ======= REJECT REQUEST =======
-function rejectRequest(idx) {
-  requests.splice(idx,1);
-  saveData();
-  renderRequests();
-}
-
-// ======= SIMPAN KE LOCALSTORAGE =======
-function saveData() {
-  localStorage.setItem('players', JSON.stringify(players));
-  localStorage.setItem('requests', JSON.stringify(requests));
-}
-
-// ======= INITIAL RENDER =======
-renderPlayers();
-renderRequests();
+window.onload = loadBandarData;
 </script>
+
 </body>
 </html>
