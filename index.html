@@ -1,148 +1,129 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>FANZZ777</title>
 
-<link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/menu.css">
-<link rel="stylesheet" href="css/animation.css">
-
+<link rel="stylesheet" href="css/base.css" />
+<link rel="stylesheet" href="css/header.css" />
+<link rel="stylesheet" href="css/menu.css" />
+<link rel="stylesheet" href="css/animation.css" />
+<link rel="stylesheet" href="css/games.css" />
 </head>
 <body>
-
 <header class="header gold">
   <div class="logo">FANZZ777</div>
   <div id="authBox"></div>
 </header>
 
-<!-- Menu utama -->
 <nav class="menu">
-  <button onclick="requireLogin('pages/slot')"><img src="assets/icons/slot.png"> Slot</button>
-  <button onclick="requireLogin('pages/casino')"><img src="assets/icons/casino.png"> Casino</button>
-  <button onclick="requireLogin('pages/togel')"><img src="assets/icons/togel.png"> Togel</button>
-  <button onclick="requireLogin('pages/arcade')"><img src="assets/icons/arcade.png"> Arcade</button>
-  <button onclick="requireLogin('pages/poker')"><img src="assets/icons/poker.png"> Poker</button>
-  <button onclick="requireLogin('pages/developer')"><img src="assets/icons/developer.png"> Developer</button>
+  <button onclick="go('slot')"><img src="assets/icons/slot.png" alt="Slot"> Slot</button>
+  <button onclick="go('casino')"><img src="assets/icons/casino.png" alt="Casino"> Casino</button>
+  <button onclick="go('togel')"><img src="assets/icons/togel.png" alt="Togel"> Togel</button>
+  <button onclick="go('arcade')"><img src="assets/icons/arcade.png" alt="Arcade"> Arcade</button>
+  <button onclick="go('poker')"><img src="assets/icons/poker.png" alt="Poker"> Poker</button>
+  <button onclick="go('developer')"><img src="assets/icons/developer.png" alt="Developer"> Developer</button>
 </nav>
 
-<!-- Banner Slider -->
+<!-- Banner slider -->
 <section class="banner">
   <div class="banner-slider">
-    <img src="assets/banners/banner_main.jpg">
-    <img src="assets/banners/banner_pgsoft.jpg">
-    <img src="assets/banners/banner_pragmatic.jpg">
-    <img src="assets/banners/banner_topup.jpg">
-    <img src="assets/banners/banner_jualbeli.jpg">
-    <img src="assets/banners/banner_saya.jpg">
-    <img src="assets/banners/banner_teman.jpg">
-    <img src="assets/banners/banner_foto1.jpg">
-    <img src="assets/banners/banner_foto2.jpg">
-    <img src="assets/banners/banner_foto3.jpg">
+    <img src="assets/banners/banner_main.jpg" alt="Banner Main">
+    <img src="assets/banners/banner_pgsoft.jpg" alt="Banner PGSoft">
+    <img src="assets/banners/banner_pragmatic.jpg" alt="Banner Pragmatic">
+    <img src="assets/banners/banner_TopUp.jpg" alt="Banner TopUp">
+    <img src="assets/banners/banner_jualbeli.jpg" alt="Banner JualBeli">
+    <img src="assets/banners/banner_saya.jpg" alt="Banner Saya">
+    <img src="assets/banners/banner_teman.jpg" alt="Banner Teman">
+    <img src="assets/banners/banner_foto1.jpg" alt="Banner Foto1">
+    <img src="assets/banners/banner_foto2.jpg" alt="Banner Foto2">
+    <img src="assets/banners/banner_foto3.jpg" alt="Banner Foto3">
   </div>
 </section>
 
-<!-- Login / Daftar Modal -->
-<div id="loginModal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <span class="close" onclick="closeLogin()">&times;</span>
-    <h2>Login</h2>
+<!-- Login / Daftar -->
+<section id="loginSection">
+  <h2>Login / Daftar</h2>
+  <div id="loginForm">
     <input type="text" id="loginUsername" placeholder="Username">
     <input type="password" id="loginPassword" placeholder="Password">
-    <button onclick="loginPlayer()">Login</button>
-    <hr>
-    <h2>Daftar</h2>
+    <button onclick="login()">Login</button>
+    <button onclick="showRegister()">Daftar</button>
+  </div>
+  <div id="registerForm" style="display:none;">
     <input type="text" id="regUsername" placeholder="Username">
     <input type="password" id="regPassword" placeholder="Password">
-    <input type="password" id="regConfirmPassword" placeholder="Konfirmasi Password">
+    <input type="password" id="regConfirm" placeholder="Konfirmasi Password">
     <input type="email" id="regEmail" placeholder="Email @gmail.com">
-    <input type="text" id="regEwallet" placeholder="E-wallet">
-    <input type="text" id="regEwalletNo" placeholder="Nomor E-wallet">
-    <input type="text" id="regBank" placeholder="Bank">
-    <input type="text" id="regBankNo" placeholder="Nomor Bank">
-    <input type="text" id="regReferral" placeholder="Kode Referral (opsional)">
-    <button onclick="registerPlayer()">Daftar</button>
+    <select id="regEwallet">
+      <option value="">Pilih E-Wallet</option>
+      <option value="dana">DANA</option>
+      <option value="gopay">GOPAY</option>
+      <option value="shoppepay">SHOPPE PAY</option>
+      <option value="ovo">OVO</option>
+    </select>
+    <input type="text" id="regEwalletNo" placeholder="Masukkan Nomor E-wallet">
+    <select id="regBank">
+      <option value="">Pilih Bank</option>
+      <option value="bri">BRI</option>
+      <option value="bni">BNI</option>
+      <option value="bpddiy">BPDDIY</option>
+      <option value="chimbi">CHIMBI</option>
+    </select>
+    <input type="text" id="regBankNo" placeholder="Masukkan Nomor Bank">
+    <input type="text" id="regRef" placeholder="Kode Ref (Opsional)">
+    <button onclick="register()">Konfirmasi</button>
+    <button onclick="showLogin()">Batal</button>
   </div>
-</div>
+</section>
 
-<!-- Menu Deposit / Withdraw / Histori / Leaderboard / Logout -->
-<main id="panel" class="content">
-  <h2>Demo Lobby (POINT)</h2>
+<main id="panel" class="content" style="display:none;">
+  <h2>Halo, <span id="playerName"></span> | Coin: <span id="playerCoin">0</span></h2>
   <div class="actions">
-    <button onclick="requireLogin('deposit')"><img src="assets/icons/deposit.png"> Deposit</button>
-    <button onclick="requireLogin('withdraw')"><img src="assets/icons/withdraw.png"> Withdraw</button>
-    <button onclick="requireLogin('histori')"><img src="assets/icons/histori.png"> Histori</button>
-    <button onclick="requireLogin('leaderboard')"><img src="assets/icons/leaderboard.png"> Leaderboard</button>
+    <button onclick="showDeposit()"><img src="assets/icons/deposit.png"> Deposit</button>
+    <button onclick="showWithdraw()"><img src="assets/icons/withdraw.png"> Withdraw</button>
+    <button onclick="showHistory()"><img src="assets/icons/histori.png"> Histori</button>
+    <button onclick="showLeaderboard()"><img src="assets/icons/leaderboard.png"> Leaderboard</button>
     <button onclick="logout()"><img src="assets/icons/logout.png"> Logout</button>
   </div>
 </main>
 
-<script src="js/data-games.js"></script>
-<script src="js/render-games.js"></script>
+<!-- Deposit / Withdraw -->
+<div id="depositSection" style="display:none;">
+  <h3>Deposit</h3>
+  <input type="text" id="depositNo" placeholder="Nomor Rekening/E-wallet">
+  <select id="depositType">
+    <option value="">Pilih Opsi</option>
+    <option value="bank">Bank</option>
+    <option value="ewallet">E-Wallet</option>
+  </select>
+  <button onclick="sendDepositRequest()">Konfirmasi</button>
+  <button onclick="hideDeposit()">Batal</button>
+</div>
+
+<div id="withdrawSection" style="display:none;">
+  <h3>Withdraw</h3>
+  <input type="text" id="withdrawNo" placeholder="Nomor Rekening/E-wallet">
+  <select id="withdrawType">
+    <option value="">Pilih Opsi</option>
+    <option value="bank">Bank</option>
+    <option value="ewallet">E-Wallet</option>
+  </select>
+  <button onclick="sendWithdrawRequest()">Konfirmasi</button>
+  <button onclick="hideWithdraw()">Batal</button>
+</div>
+
 <script src="js/wallet.js"></script>
-<script src="js/history.js"></script>
-<script src="js/navigation.js"></script>
 <script src="js/interaction.js"></script>
-
-<!-- Slider -->
 <script>
-const slider = document.querySelector('.banner-slider');
-let index = 0;
+/* Banner Slider Otomatis */
+let banners = document.querySelectorAll(".banner-slider img");
+let current = 0;
 setInterval(()=>{
-  const images = slider.querySelectorAll('img');
-  images.forEach(img=>img.style.display="none");
-  images[index].style.display="block";
-  index=(index+1)%images.length;
-},3000);
+  banners.forEach((b,i)=>b.style.display=i===current?"block":"none");
+  current = (current+1)%banners.length;
+},4000);
 </script>
-
-<script>
-// Login / Daftar
-function requireLogin(page){
-  const currentUser = JSON.parse(localStorage.getItem("currentUser") || "null");
-  if(!currentUser){
-    document.getElementById("loginModal").style.display="flex";
-  } else {
-    window.location.href=page+".html";
-  }
-}
-function closeLogin(){ document.getElementById("loginModal").style.display="none"; }
-
-function registerPlayer(){
-  const users = JSON.parse(localStorage.getItem("users")||"[]");
-  const username = document.getElementById("regUsername").value;
-  const password = document.getElementById("regPassword").value;
-  const confirm = document.getElementById("regConfirmPassword").value;
-  const email = document.getElementById("regEmail").value;
-  const ewallet = document.getElementById("regEwallet").value;
-  const ewalletNo = document.getElementById("regEwalletNo").value;
-  const bank = document.getElementById("regBank").value;
-  const bankNo = document.getElementById("regBankNo").value;
-  const referral = document.getElementById("regReferral").value;
-
-  if(!username||!password||!confirm||!email||!ewallet||!ewalletNo||!bank||!bankNo){
-    alert("Semua wajib diisi!"); return;
-  }
-  if(password!==confirm){ alert("Password dan konfirmasi harus sama!"); return;}
-  if(!email.includes("@gmail.com")){ alert("Email harus @gmail.com"); return;}
-
-  users.push({username,password,email,ewallet,ewalletNo,bank,bankNo,referral,saldo:0,acc:false});
-  localStorage.setItem("users",JSON.stringify(users));
-  alert("Registrasi berhasil!"); closeLogin();
-}
-
-function loginPlayer(){
-  const username = document.getElementById("loginUsername").value;
-  const password = document.getElementById("loginPassword").value;
-  const users = JSON.parse(localStorage.getItem("users")||"[]");
-  const user = users.find(u=>u.username===username && u.password===password);
-  if(user){ localStorage.setItem("currentUser",JSON.stringify(user)); alert("Login berhasil!"); closeLogin();}
-  else alert("Username/Password salah!");
-}
-
-function logout(){ localStorage.removeItem("currentUser"); alert("Logout berhasil!"); location.reload();}
-</script>
-
 </body>
-  </html>
+        </html>
