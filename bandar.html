@@ -2,73 +2,237 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+<title>BANDAR PANEL - FANZZ777</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FANZZ777 - Bandar</title>
-<link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/header.css">
-<link rel="stylesheet" href="css/menu.css">
-<link rel="stylesheet" href="css/animation.css">
+
 <style>
-body { background:#111; color:gold; font-family:Arial, sans-serif; }
-.header { background:#222; padding:10px; text-align:center; font-size:24px; font-weight:bold; color:gold; }
-table { width:100%; border-collapse:collapse; margin-top:10px; }
-th, td { border:1px solid gold; padding:8px; text-align:center; }
-th { background:#333; }
-button { padding:5px 10px; border:none; border-radius:6px; background:gold; color:#111; font-weight:bold; cursor:pointer; }
+:root{
+  --gold:#ffd700;
+  --bg:#000;
+  --panel:#0b0b0b;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:radial-gradient(circle at top, #111, #000 60%);
+  color:var(--gold);
+  font-family:Arial,Helvetica,sans-serif;
+}
+.hidden{display:none}
+.glow{box-shadow:0 0 18px var(--gold)}
+h2{text-align:center; letter-spacing:1px}
+
+#loginBox,#panelBox{
+  max-width:1100px; margin:30px auto; padding:16px;
+  border:2px solid var(--gold); border-radius:14px; background:var(--panel);
+}
+#loginBox{max-width:360px; margin-top:120px}
+
+input,select{
+  width:100%; padding:8px; margin:6px 0;
+  background:#111; color:var(--gold);
+  border:1px solid var(--gold); border-radius:8px;
+}
+button{
+  padding:7px 12px; margin:4px;
+  border:none; border-radius:8px; cursor:pointer; font-weight:bold;
+}
+.btn-gold{background:var(--gold); color:#000}
+.btn-dark{background:#222; color:var(--gold); border:1px solid var(--gold)}
+.acc{background:#2ecc71}
+.tolak{background:#e74c3c; color:#fff}
+.logout{background:#f39c12}
+
+.tabs{display:flex; gap:8px; justify-content:center; flex-wrap:wrap}
+.tabBtn.active{background:var(--gold); color:#000}
+
+.toolbar{
+  display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+  margin:10px 0;
+}
+.toolbar .left,.toolbar .right{display:flex; gap:8px; flex-wrap:wrap}
+
+table{
+  width:100%; border-collapse:collapse; margin-top:8px;
+}
+th,td{
+  border:1px solid var(--gold); padding:6px; text-align:center;
+}
+thead{background:#111}
+
+.small{font-size:12px; opacity:.9}
+hr{border:0; border-top:1px solid #333; margin:10px 0}
 </style>
 </head>
-<body>
-<header class="header">Panel Bandar FANZZ777</header>
 
-<h3>Pending Deposit / Withdraw</h3>
-<table id="pendingTable">
-  <thead>
-    <tr>
-      <th>Username</th>
-      <th>Type</th>
-      <th>Nominal</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
+<body>
+
+<!-- LOGIN -->
+<div id="loginBox" class="glow">
+  <h3>🔐 Login Bandar</h3>
+  <input type="password" id="adminPass" placeholder="Password Bandar">
+  <button class="btn-gold" onclick="login()">Masuk</button>
+  <p class="small">Password awal: <b>bandar123</b></p>
+</div>
+
+<!-- PANEL -->
+<div id="panelBox" class="hidden glow">
+  <h2>🛡️ PANEL BANDAR FANZZ777</h2>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tabBtn btn-dark active" onclick="showTab('deposit',this)">Deposit</button>
+    <button class="tabBtn btn-dark" onclick="showTab('withdraw',this)">Withdraw</button>
+    <button class="logout" onclick="logout()">Logout</button>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <div class="left">
+      <input id="searchUser" placeholder="Cari username…" oninput="loadData()">
+      <input type="date" id="filterDate" onchange="loadData()">
+    </div>
+    <div class="right">
+      <button class="btn-dark" onclick="toggleTheme()">Tema Brutal</button>
+      <button class="btn-dark" onclick="openPass()">Ganti Password</button>
+    </div>
+  </div>
+
+  <!-- DEPOSIT -->
+  <div id="depositTab">
+    <table>
+      <thead>
+        <tr>
+          <th>Username</th><th>Nama</th><th>Metode</th><th>Nomor</th>
+          <th>Nominal</th><th>Status</th><th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="depositList"></tbody>
+    </table>
+  </div>
+
+  <!-- WITHDRAW -->
+  <div id="withdrawTab" class="hidden">
+    <table>
+      <thead>
+        <tr>
+          <th>Username</th><th>Nama</th><th>Metode</th><th>Nomor</th>
+          <th>Nominal</th><th>Status</th><th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="withdrawList"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- CHANGE PASSWORD MODAL -->
+<div id="passModal" class="hidden">
+  <div id="loginBox" class="glow">
+    <h3>🔑 Ganti Password Bandar</h3>
+    <input type="password" id="oldPass" placeholder="Password lama">
+    <input type="password" id="newPass" placeholder="Password baru">
+    <button class="btn-gold" onclick="changePass()">Simpan</button>
+    <button class="btn-dark" onclick="closePass()">Batal</button>
+  </div>
+</div>
 
 <script>
-// ----- BANDAR CONTROL -----
-function loadPending(){
-  const history = JSON.parse(localStorage.getItem('history')) || [];
-  const pending = history.filter(h=>!h.approved);
-  const tbody = document.querySelector('#pendingTable tbody');
-  tbody.innerHTML='';
-  pending.forEach((h,index)=>{
-    const tr=document.createElement('tr');
-    const nom = h.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g,".");
-    tr.innerHTML=`<td>${h.user}</td><td>${h.type}</td><td>${nom}</td>
-                   <td><button onclick="approve(${index})">ACC</button></td>`;
-    tbody.appendChild(tr);
+/* ===== AUTH ===== */
+const DEFAULT_PASS="bandar123";
+if(!localStorage.adminPass) localStorage.adminPass=DEFAULT_PASS;
+
+function login(){
+  if(adminPass.value===localStorage.adminPass){
+    localStorage.adminLogin="1"; init();
+  }else alert("Password salah");
+}
+function logout(){
+  localStorage.removeItem("adminLogin"); location.reload();
+}
+function init(){
+  loginBox.style.display="none";
+  panelBox.classList.remove("hidden");
+  loadData();
+}
+if(localStorage.adminLogin) init();
+
+/* ===== TABS ===== */
+function showTab(t,btn){
+ document.querySelectorAll('.tabBtn').forEach(b=>b.classList.remove('active'));
+ btn.classList.add('active');
+ depositTab.classList.toggle('hidden',t!=="deposit");
+ withdrawTab.classList.toggle('hidden',t!=="withdraw");
+}
+
+/* ===== DATA ===== */
+function loadData(){
+ let players=JSON.parse(localStorage.players||"[]");
+ let q=searchUser.value.toLowerCase();
+ let d=filterDate.value;
+ depositList.innerHTML=withdrawList.innerHTML="";
+
+ players.forEach((p,pi)=>{
+  (p.history||[]).forEach((h,hi)=>{
+   if(h.status!=="pending") return;
+   if(q && !p.username.toLowerCase().includes(q)) return;
+   if(d && h.date && h.date!==d) return; // kalau tidak ada tanggal, otomatis lolos
+
+   let row=`
+   <tr>
+     <td>${p.username}</td>
+     <td>${p.name||"-"}</td>
+     <td>${h.method||"-"}</td>
+     <td>${h.number||"-"}</td>
+     <td>${h.amount||"-"}</td>
+     <td>${h.status}</td>
+     <td>
+       <button class="acc" onclick="acc(${pi},${hi})">ACC</button>
+       <button class="tolak" onclick="tolak(${pi},${hi})">TOLAK</button>
+     </td>
+   </tr>`;
+   if(h.type==="deposit") depositList.innerHTML+=row;
+   if(h.type==="withdraw") withdrawList.innerHTML+=row;
   });
+ });
 }
 
-function approve(idx){
-  const history = JSON.parse(localStorage.getItem('history')) || [];
-  const entry = history.filter(h=>!h.approved)[idx];
-  if(!entry) return;
-
-  if(entry.type==='Withdraw'){
-    // kurangi saldo pemain
-    let players = JSON.parse(localStorage.getItem('players'))||[];
-    let player = players.find(p=>p.username===entry.user);
-    if(player && player.saldo>=entry.amount){
-      player.saldo -= entry.amount;
-      localStorage.setItem('players', JSON.stringify(players));
-    } else { alert("Saldo tidak cukup!"); return; }
-  }
-  entry.approved = true;
-  localStorage.setItem('history', JSON.stringify(history));
-  loadPending();
+function acc(pi,hi){
+ let players=JSON.parse(localStorage.players);
+ let p=players[pi],h=p.history[hi];
+ if(h.type==="deposit") p.saldo+=h.amount;
+ if(h.type==="withdraw") p.saldo-=h.amount;
+ h.status="approved";
+ save(players);
+}
+function tolak(pi,hi){
+ let players=JSON.parse(localStorage.players);
+ players[pi].history[hi].status="rejected";
+ save(players);
+}
+function save(players){
+ localStorage.players=JSON.stringify(players);
+ loadData();
 }
 
-window.onload = loadPending;
+/* ===== PASSWORD ===== */
+function openPass(){ passModal.classList.remove('hidden') }
+function closePass(){ passModal.classList.add('hidden') }
+function changePass(){
+ if(oldPass.value!==localStorage.adminPass) return alert("Password lama salah");
+ if(!newPass.value) return alert("Password baru kosong");
+ localStorage.adminPass=newPass.value;
+ alert("Password berhasil diganti");
+ closePass();
+}
+
+/* ===== THEME ===== */
+let brutal=false;
+function toggleTheme(){
+ brutal=!brutal;
+ document.body.style.background=brutal?
+ "linear-gradient(135deg,#000,#111 40%,#000)":
+ "radial-gradient(circle at top,#111,#000 60%)";
+}
 </script>
 </body>
-</html>
+                             </html>
