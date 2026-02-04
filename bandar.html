@@ -8,121 +8,129 @@
 <style>
 body{
   background:#000;
-  color:gold;
+  color:#fff;
   font-family:Arial, sans-serif;
-  margin:0;
   padding:15px;
 }
-h2{text-align:center}
+h2{text-align:center;color:gold}
 
-.box{
-  background:#111;
-  border:1px solid gold;
-  border-radius:10px;
-  padding:10px;
-  margin-bottom:15px;
+.table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:15px;
 }
+th,td{
+  border:1px solid #444;
+  padding:8px;
+  text-align:center;
+}
+th{background:#111;color:gold}
+tr:nth-child(even){background:#0d0d0d}
 
 button{
-  padding:6px 12px;
-  margin:4px;
+  padding:5px 10px;
   border:none;
-  border-radius:6px;
+  border-radius:5px;
   font-weight:bold;
   cursor:pointer;
+  margin:2px;
 }
 .acc{background:lime;color:#000}
 .tolak{background:red;color:#fff}
-.refresh{background:gold;color:#000}
+.refresh{background:gold;color:#000;margin-bottom:10px}
+
+.empty{
+  text-align:center;
+  margin-top:20px;
+  color:#aaa;
+}
 </style>
 </head>
 
 <body>
 
-<h2>📊 PANEL BANDAR (TANPA LOGIN)</h2>
-<button class="refresh" onclick="loadPlayers()">🔄 Refresh Data</button>
-<br><br>
+<h2>📊 PANEL BANDAR</h2>
+<button class="refresh" onclick="loadData()">🔄 Refresh</button>
 
-<div id="playerList"></div>
+<table class="table">
+<thead>
+<tr>
+  <th>Username</th>
+  <th>Jenis</th>
+  <th>Nama Rekening</th>
+  <th>Nomor Rekening</th>
+  <th>Nominal</th>
+  <th>Status</th>
+</tr>
+</thead>
+<tbody id="dataRow"></tbody>
+</table>
+
+<div id="kosong" class="empty"></div>
 
 <script>
-function loadPlayers(){
-  let data = JSON.parse(localStorage.players || "[]");
-  playerList.innerHTML = "";
+function loadData(){
+  let players = JSON.parse(localStorage.players || "[]");
+  let tbody = document.getElementById("dataRow");
+  let kosong = document.getElementById("kosong");
 
-  if(data.length === 0){
-    playerList.innerHTML = "<p>Tidak ada pemain</p>";
-    return;
-  }
+  tbody.innerHTML = "";
+  kosong.innerHTML = "";
+  let ada = false;
 
-  data.forEach(p=>{
-    let box = document.createElement("div");
-    box.className = "box";
+  players.forEach(p=>{
+    (p.history||[]).forEach((h,i)=>{
+      if(h.status==="pending"){
+        ada = true;
+        let rek = p.wallet ? p.wallet+" "+p.walletNum : p.bank+" "+p.bankNum;
 
-    let rekening = p.wallet
-      ? `${p.wallet} - ${p.walletNum}`
-      : `${p.bank} - ${p.bankNum}`;
-
-    let transaksi = "";
-    p.history.forEach((h,i)=>{
-      if(typeof h === "string"){
-        transaksi += `<li>${h}</li>`;
-      }else{
-        transaksi += `
-          <li>
-            ${h.type.toUpperCase()} ${h.amount} (${h.status})
-            ${h.status==="pending" ? `
-              <br>
-              <button class="acc" onclick="acc('${p.username}',${i})">ACC</button>
-              <button class="tolak" onclick="tolak('${p.username}',${i})">TOLAK</button>
-            ` : ""}
-          </li>
+        let tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${p.username}</td>
+          <td>${h.type.toUpperCase()}</td>
+          <td>${p.name}</td>
+          <td>${rek}</td>
+          <td>Rp ${h.amount.toLocaleString()}</td>
+          <td>
+            <button class="acc" onclick="acc('${p.username}',${i})">ACC</button>
+            <button class="tolak" onclick="tolak('${p.username}',${i})">TOLAK</button>
+          </td>
         `;
+        tbody.appendChild(tr);
       }
     });
-
-    box.innerHTML = `
-      <b>Username:</b> ${p.username}<br>
-      <b>Nama Rekening:</b> ${p.name}<br>
-      <b>Rekening:</b> ${rekening}<br>
-      <b>Saldo:</b> ${p.saldo}<br><br>
-      <b>Histori Transaksi:</b>
-      <ul>${transaksi}</ul>
-    `;
-    playerList.appendChild(box);
   });
+
+  if(!ada){
+    kosong.innerHTML = "Tidak ada permintaan Deposit / Withdraw";
+  }
 }
 
 function acc(username,index){
-  let data = JSON.parse(localStorage.players);
-  let p = data.find(x=>x.username===username);
+  let players = JSON.parse(localStorage.players);
+  let p = players.find(x=>x.username===username);
   let h = p.history[index];
-
-  if(typeof h === "string"){
-    alert("Histori lama tidak bisa di-ACC");
-    return;
-  }
 
   if(h.type==="deposit") p.saldo += h.amount;
   if(h.type==="withdraw") p.saldo -= h.amount;
 
   h.status = "acc";
-  save(data);
+  save(players);
 }
 
 function tolak(username,index){
-  let data = JSON.parse(localStorage.players);
-  let p = data.find(x=>x.username===username);
+  let players = JSON.parse(localStorage.players);
+  let p = players.find(x=>x.username===username);
   p.history[index].status = "tolak";
-  save(data);
+  save(players);
 }
 
 function save(data){
   localStorage.players = JSON.stringify(data);
-  loadPlayers();
+  loadData();
 }
 
-window.onload = loadPlayers;
+window.onload = loadData;
 </script>
 
 </body>
