@@ -3,56 +3,74 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Panel Bandar</title>
+<title>Panel Bandar - FANZZ777</title>
 
 <style>
 body{
   background:#000;
-  color:#fff;
-  font-family:Arial, sans-serif;
-  padding:15px;
+  color:gold;
+  font-family:Arial,Helvetica,sans-serif;
 }
-h2{text-align:center;color:gold}
-
-.table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:15px;
-}
-th,td{
-  border:1px solid #444;
-  padding:8px;
-  text-align:center;
-}
-th{background:#111;color:gold}
-tr:nth-child(even){background:#0d0d0d}
-
-button{
-  padding:5px 10px;
-  border:none;
-  border-radius:5px;
-  font-weight:bold;
-  cursor:pointer;
-  margin:2px;
-}
-.acc{background:lime;color:#000}
-.tolak{background:red;color:#fff}
-.refresh{background:gold;color:#000;margin-bottom:10px}
-
-.empty{
+h1{
   text-align:center;
   margin-top:20px;
-  color:#aaa;
+}
+button{
+  background:gold;
+  color:#000;
+  border:none;
+  padding:6px 12px;
+  border-radius:6px;
+  font-weight:bold;
+  cursor:pointer;
+}
+button:hover{opacity:.8}
+
+.table-wrap{
+  width:100%;
+  overflow-x:auto;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:20px;
+}
+th,td{
+  border:1px solid #333;
+  padding:10px;
+  text-align:center;
+}
+th{
+  background:#111;
+}
+.empty{
+  text-align:center;
+  margin-top:40px;
+  opacity:.7;
+}
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin:10px 0;
+}
+.refresh{
+  background:#ffd700;
 }
 </style>
 </head>
 
 <body>
 
-<h2>📊 PANEL BANDAR</h2>
-<button class="refresh" onclick="loadData()">🔄 Refresh</button>
+<h1>📊 PANEL BANDAR</h1>
 
-<table class="table">
+<div class="topbar">
+  <div></div>
+  <button class="refresh" onclick="loadRequests()">🔄 Refresh</button>
+</div>
+
+<div class="table-wrap">
+<table>
 <thead>
 <tr>
   <th>Username</th>
@@ -63,37 +81,39 @@ button{
   <th>Status</th>
 </tr>
 </thead>
-<tbody id="dataRow"></tbody>
+<tbody id="reqTable"></tbody>
 </table>
+</div>
 
-<div id="kosong" class="empty"></div>
+<div id="emptyText" class="empty">
+  Tidak ada permintaan Deposit / Withdraw
+</div>
 
 <script>
-function loadData(){
-  let players = JSON.parse(localStorage.players || "[]");
-  let tbody = document.getElementById("dataRow");
-  let kosong = document.getElementById("kosong");
+function loadRequests(){
+  const players = JSON.parse(localStorage.players || "[]");
+  const tbody = document.getElementById("reqTable");
+  const empty = document.getElementById("emptyText");
 
   tbody.innerHTML = "";
-  kosong.innerHTML = "";
-  let ada = false;
+  let found = false;
 
-  players.forEach(p=>{
-    (p.history||[]).forEach((h,i)=>{
-      if(h.status==="pending"){
-        ada = true;
-        let rek = p.wallet ? p.wallet+" "+p.walletNum : p.bank+" "+p.bankNum;
+  players.forEach(player=>{
+    player.history.forEach(h=>{
+      if(typeof h === "object" && h.status === "pending"){
+        found = true;
 
-        let tr = document.createElement("tr");
+        const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${p.username}</td>
+          <td>${player.username}</td>
           <td>${h.type.toUpperCase()}</td>
-          <td>${p.name}</td>
-          <td>${rek}</td>
-          <td>Rp ${h.amount.toLocaleString()}</td>
+          <td>${player.name}</td>
+          <td>${player.wallet ? player.wallet+" - "+player.walletNum : player.bank+" - "+player.bankNum}</td>
+          <td>${h.amount}</td>
           <td>
-            <button class="acc" onclick="acc('${p.username}',${i})">ACC</button>
-            <button class="tolak" onclick="tolak('${p.username}',${i})">TOLAK</button>
+            <button onclick="acc('${player.username}','${h.type}',${h.amount},${h.time})">
+              ACC
+            </button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -101,36 +121,49 @@ function loadData(){
     });
   });
 
-  if(!ada){
-    kosong.innerHTML = "Tidak ada permintaan Deposit / Withdraw";
+  empty.style.display = found ? "none" : "block";
+}
+
+function acc(username,type,amount,time){
+  let players = JSON.parse(localStorage.players || "[]");
+
+  players = players.map(p=>{
+    if(p.username === username){
+      // update saldo
+      if(type === "deposit") p.saldo += amount;
+      if(type === "withdraw") p.saldo -= amount;
+
+      // update history
+      p.history = p.history.map(h=>{
+        if(
+          typeof h === "object" &&
+          h.status === "pending" &&
+          h.amount === amount &&
+          h.type === type &&
+          h.time === time
+        ){
+          h.status = "acc";
+        }
+        return h;
+      });
+    }
+    return p;
+  });
+
+  localStorage.players = JSON.stringify(players);
+
+  // update current player if same user open
+  let current = JSON.parse(localStorage.current || "null");
+  if(current && current.username === username){
+    const updated = players.find(p=>p.username===username);
+    localStorage.current = JSON.stringify(updated);
   }
+
+  alert("ACC berhasil ✅ Saldo pemain terupdate");
+  loadRequests();
 }
 
-function acc(username,index){
-  let players = JSON.parse(localStorage.players);
-  let p = players.find(x=>x.username===username);
-  let h = p.history[index];
-
-  if(h.type==="deposit") p.saldo += h.amount;
-  if(h.type==="withdraw") p.saldo -= h.amount;
-
-  h.status = "acc";
-  save(players);
-}
-
-function tolak(username,index){
-  let players = JSON.parse(localStorage.players);
-  let p = players.find(x=>x.username===username);
-  p.history[index].status = "tolak";
-  save(players);
-}
-
-function save(data){
-  localStorage.players = JSON.stringify(data);
-  loadData();
-}
-
-window.onload = loadData;
+loadRequests();
 </script>
 
 </body>
