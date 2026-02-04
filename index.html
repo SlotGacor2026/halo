@@ -10,109 +10,58 @@
 <link rel="stylesheet" href="css/menu.css">
 <link rel="stylesheet" href="css/animation.css">
 
-<script>
-
-/* =====================
-   SAFE STORAGE INIT
-===================== */
-if(!localStorage.players){
- localStorage.players = JSON.stringify([]);
+<style>
+/* ===== HEADER COIN ===== */
+#coinBox{
+  background:#111;
+  color:gold;
+  padding:6px 12px;
+  border-radius:20px;
+  font-weight:bold;
+  box-shadow:0 0 10px gold;
 }
 
-/* =====================
-   GET PLAYER DATA
-===================== */
-function getPlayer(){
- try{
-  let p = localStorage.getItem("current");
-  if(!p) return null;
-  return JSON.parse(p);
- }catch{
-  return null;
- }
+/* ===== MENU ICON ===== */
+.menu button{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.menu img{
+  width:18px;
+  height:18px;
 }
 
-/* =====================
-   UPDATE COIN DISPLAY
-===================== */
-function updateCoin(){
- try{
-  let p = getPlayer();
-  let coinBox = document.getElementById("coinBox");
-
-  if(!coinBox) return;
-
-  if(!p){
-   coinBox.innerHTML = "💰 Coin: 0";
-   return;
-  }
-
-  coinBox.innerHTML = "💰 Coin: " + (p.saldo || 0);
-
- }catch(e){
-  console.log("Coin Error:", e);
- }
+/* ===== GOLD BLACK AUTH ===== */
+#authModal{
+  background:linear-gradient(145deg,#000,#1a1a1a);
+  color:gold;
+  box-shadow:0 0 25px gold;
+}
+#authModal input,#authModal select{
+  background:#000;color:gold;border:1px solid gold;
+}
+#authModal button{
+  background:gold;color:#000;font-weight:bold;
 }
 
-/* =====================
-   SAVE PLAYER DATA
-===================== */
-function save(p){
- try{
-  let players = JSON.parse(localStorage.players || "[]");
-
-  players = players.map(x =>
-   x.username === p.username ? p : x
-  );
-
-  localStorage.players = JSON.stringify(players);
-  localStorage.current = JSON.stringify(p);
-
-  updateCoin();
-
- }catch(e){
-  console.log("Save Error:", e);
- }
+/* ===== MODAL ===== */
+.modal{
+  display:none;position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  background:#111;color:gold;
+  padding:20px;border-radius:12px;
+  width:90%;max-width:400px;
+  z-index:1000;
+  box-shadow:0 0 20px gold;
 }
+.panel{display:none;background:#111;color:gold;padding:10px;border-radius:10px}
+.modal button{margin:5px;padding:8px 14px;border-radius:8px;border:none;font-weight:bold}
 
-/* =====================
-   LOGOUT PLAYER
-===================== */
-function logoutPlayer(){
- localStorage.removeItem("current");
- location.reload();
-}
-
-/* =====================
-   PREMIUM LOADING EFFECT
-===================== */
-function hideLoading(){
- let loader = document.getElementById("loadingScreen");
- if(loader){
-  loader.style.opacity = "0";
-  setTimeout(()=> loader.style.display="none",500);
- }
-}
-
-/* =====================
-   BANNER AUTO SLIDE
-===================== */
-let slideIndex = 0;
-
-function autoSlideBanner(){
- let slides = document.querySelectorAll(".banner-slider img");
- if(!slides.length) return;
-
- slides.forEach(s => s.style.display = "none");
-
- slideIndex++;
- if(slideIndex > slides.length){
-  slideIndex = 1;
- }
-
- slides[slideIndex-1].style.display = "block";
-}
-</script>
+/* ===== WA ===== */
+#waButton{position:fixed;bottom:20px;left:20px;width:60px;z-index:1000}
+#waButton img{width:100%}
+</style>
 </head>
 
 <body>
@@ -305,39 +254,7 @@ window.onload=()=>{
  if(!p) authModal.style.display="block";
  else updateCoin();
 }
-
-/* =====================
-   FAST LOAD START
-===================== */
-
-document.addEventListener("DOMContentLoaded", ()=>{
-
- updateCoin();
-
- /* AUTO SLIDE BANNER */
- let slideIndex = 0;
-
- function autoSlideBanner(){
-  let slides = document.querySelectorAll(".banner-slider img");
-  if(!slides.length) return;
-
-  slides.forEach(s => s.style.display = "none");
-
-  slideIndex++;
-  if(slideIndex > slides.length){
-   slideIndex = 1;
-  }
-
-  slides[slideIndex-1].style.display = "block";
- }
-
- autoSlideBanner();
- setInterval(autoSlideBanner, 2500);
-
- setTimeout(hideLoading, 500);
-
-});
 </script>
 
 </body>
-    </html>
+   </html>
