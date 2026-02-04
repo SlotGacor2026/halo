@@ -2,277 +2,139 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>BANDAR PANEL - FANZZ777</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Bandar</title>
 
 <style>
-:root{
-  --gold:#ffd700;
-  --bg:#000;
-  --panel:#0b0b0b;
-}
-*{box-sizing:border-box}
 body{
+  background:#000;
+  color:gold;
+  font-family:Arial;
   margin:0;
-  background:radial-gradient(circle at top,#111,#000 65%);
-  color:var(--gold);
-  font-family:Arial,Helvetica,sans-serif;
+  padding:15px;
 }
-.hidden{display:none}
-.glow{box-shadow:0 0 18px var(--gold)}
 h2{text-align:center}
 
-#loginBox,#panelBox{
-  max-width:1100px;
-  margin:30px auto;
-  padding:16px;
-  border:2px solid var(--gold);
-  border-radius:14px;
-  background:var(--panel);
-}
-#loginBox{max-width:360px;margin-top:120px}
-
-input{
-  width:100%;
+input,button{
   padding:8px;
-  margin:6px 0;
-  background:#111;
-  color:var(--gold);
-  border:1px solid var(--gold);
-  border-radius:8px;
-}
-button{
-  padding:7px 12px;
-  margin:4px;
+  margin:5px 0;
+  border-radius:6px;
   border:none;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:bold;
 }
-.btn-gold{background:var(--gold);color:#000}
-.btn-dark{background:#222;color:var(--gold);border:1px solid var(--gold)}
-.acc{background:#2ecc71}
-.tolak{background:#e74c3c;color:#fff}
-.logout{background:#f39c12}
+button{font-weight:bold;cursor:pointer}
+.acc{background:lime;color:#000}
+.tolak{background:red;color:#fff}
+.logout{background:orange}
 
-.tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-.tabBtn.active{background:var(--gold);color:#000}
+.box{
+  background:#111;
+  border:1px solid gold;
+  border-radius:10px;
+  padding:10px;
+  margin-bottom:15px;
+}
 
-.toolbar{
-  display:flex;gap:8px;flex-wrap:wrap;
-  justify-content:space-between;
-  margin:10px 0;
-}
-.toolbar .left,.toolbar .right{display:flex;gap:8px;flex-wrap:wrap}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:8px;
-}
-th,td{
-  border:1px solid var(--gold);
-  padding:6px;
-  text-align:center;
-}
-thead{background:#111}
-.small{font-size:12px;opacity:.85}
+.hidden{display:none}
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN BANDAR -->
-<div id="loginBox" class="glow">
-  <h3>🔐 Login Bandar</h3>
-  <input type="password" id="adminPassInput" placeholder="Password Bandar">
-  <button class="btn-gold" onclick="loginBandar()">Masuk</button>
-  <p class="small">Password awal: <b>bandar123</b></p>
+<!-- LOGIN -->
+<div id="loginBox" class="box">
+  <h2>🔐 LOGIN BANDAR</h2>
+  <input type="password" id="adminPass" placeholder="Password Bandar">
+  <button onclick="login()">Masuk</button>
 </div>
 
-<!-- PANEL BANDAR -->
-<div id="panelBox" class="hidden glow">
-  <h2>🛡️ PANEL BANDAR FANZZ777</h2>
-
-  <div class="tabs">
-    <button class="tabBtn btn-dark active" onclick="showTab('deposit',this)">Deposit</button>
-    <button class="tabBtn btn-dark" onclick="showTab('withdraw',this)">Withdraw</button>
-    <button class="logout" onclick="logoutBandar()">Logout</button>
-  </div>
-
-  <div class="toolbar">
-    <div class="left">
-      <input id="searchUser" placeholder="Cari username..." oninput="loadData()">
-      <input type="date" id="filterDate" onchange="loadData()">
-    </div>
-    <div class="right">
-      <button class="btn-dark" onclick="openPass()">Ganti Password</button>
-    </div>
-  </div>
-
-  <!-- DEPOSIT -->
-  <div id="depositTab">
-    <table>
-      <thead>
-        <tr>
-          <th>Username</th>
-          <th>Nama</th>
-          <th>Metode</th>
-          <th>Nomor</th>
-          <th>Nominal</th>
-          <th>Status</th>
-          <th>Aksi</th>
-        </tr>
-      </thead>
-      <tbody id="depositList"></tbody>
-    </table>
-  </div>
-
-  <!-- WITHDRAW -->
-  <div id="withdrawTab" class="hidden">
-    <table>
-      <thead>
-        <tr>
-          <th>Username</th>
-          <th>Nama</th>
-          <th>Metode</th>
-          <th>Nomor</th>
-          <th>Nominal</th>
-          <th>Status</th>
-          <th>Aksi</th>
-        </tr>
-      </thead>
-      <tbody id="withdrawList"></tbody>
-    </table>
-  </div>
-</div>
-
-<!-- GANTI PASSWORD -->
-<div id="passModal" class="hidden">
-  <div id="loginBox" class="glow">
-    <h3>🔑 Ganti Password Bandar</h3>
-    <input type="password" id="oldPass" placeholder="Password lama">
-    <input type="password" id="newPass" placeholder="Password baru">
-    <button class="btn-gold" onclick="changePassword()">Simpan</button>
-    <button class="btn-dark" onclick="closePass()">Batal</button>
-  </div>
+<!-- PANEL -->
+<div id="panel" class="hidden">
+  <h2>📊 PANEL BANDAR</h2>
+  <button class="logout" onclick="logout()">Logout</button>
+  <div id="playerList"></div>
 </div>
 
 <script>
-/* ===== INIT PASSWORD ===== */
-if(!localStorage.adminPass){
-  localStorage.adminPass = "bandar123";
+const DEFAULT_PASS="bandar123";
+
+function login(){
+ let saved=localStorage.adminPass||DEFAULT_PASS;
+ if(adminPass.value!==saved) return alert("Password salah");
+ localStorage.adminLogin=1;
+ location.reload();
 }
 
-/* ===== LOGIN ===== */
-function loginBandar(){
-  const pass = document.getElementById("adminPassInput").value;
-  if(pass === localStorage.adminPass){
-    localStorage.adminLogin = "1";
-    initPanel();
-  }else{
-    alert("Password salah");
-  }
+function logout(){
+ localStorage.removeItem("adminLogin");
+ location.reload();
 }
 
-function logoutBandar(){
-  localStorage.removeItem("adminLogin");
-  location.reload();
+function loadPlayers(){
+ let data=JSON.parse(localStorage.players||"[]");
+ playerList.innerHTML="";
+ data.forEach(p=>{
+  let box=document.createElement("div");
+  box.className="box";
+
+  let acc=p.wallet?p.wallet+" "+p.walletNum:p.bank+" "+p.bankNum;
+
+  box.innerHTML=`
+   <b>Username:</b> ${p.username}<br>
+   <b>Nama Rekening:</b> ${p.name}<br>
+   <b>Rekening:</b> ${acc}<br>
+   <b>Saldo:</b> ${p.saldo}<br><br>
+   <b>Transaksi:</b>
+   <ul>
+     ${p.history.map((h,i)=>`
+       <li>
+        ${h.type.toUpperCase()} - ${h.amount} (${h.status})
+        ${h.status==="pending"?`
+         <br>
+         <button class="acc" onclick="acc('${p.username}',${i})">ACC</button>
+         <button class="tolak" onclick="tolak('${p.username}',${i})">TOLAK</button>
+        `:""}
+       </li>
+     `).join("")}
+   </ul>
+  `;
+  playerList.appendChild(box);
+ });
 }
 
-function initPanel(){
-  document.getElementById("loginBox").style.display="none";
-  document.getElementById("panelBox").classList.remove("hidden");
-  loadData();
+function acc(user,i){
+ let d=JSON.parse(localStorage.players);
+ let p=d.find(x=>x.username===user);
+ let h=p.history[i];
+
+ if(h.type==="deposit") p.saldo+=h.amount;
+ if(h.type==="withdraw") p.saldo-=h.amount;
+
+ h.status="acc";
+ save(d);
 }
 
-if(localStorage.adminLogin){
-  initPanel();
+function tolak(user,i){
+ let d=JSON.parse(localStorage.players);
+ let p=d.find(x=>x.username===user);
+ p.history[i].status="tolak";
+ save(d);
 }
 
-/* ===== TAB ===== */
-function showTab(tab,btn){
-  document.querySelectorAll(".tabBtn").forEach(b=>b.classList.remove("active"));
-  btn.classList.add("active");
-  document.getElementById("depositTab").classList.toggle("hidden",tab!=="deposit");
-  document.getElementById("withdrawTab").classList.toggle("hidden",tab!=="withdraw");
+function save(d){
+ localStorage.players=JSON.stringify(d);
+ loadPlayers();
 }
 
-/* ===== DATA ===== */
-function loadData(){
-  const players = JSON.parse(localStorage.players || "[]");
-  const q = document.getElementById("searchUser").value.toLowerCase();
-  const d = document.getElementById("filterDate").value;
-
-  depositList.innerHTML = "";
-  withdrawList.innerHTML = "";
-
-  players.forEach((p,pi)=>{
-    (p.history||[]).forEach((h,hi)=>{
-      if(h.status!=="pending") return;
-      if(q && !p.username.toLowerCase().includes(q)) return;
-      if(d && h.date && h.date!==d) return;
-
-      const row = `
-      <tr>
-        <td>${p.username}</td>
-        <td>${p.name||"-"}</td>
-        <td>${h.method||"-"}</td>
-        <td>${h.number||"-"}</td>
-        <td>${h.amount}</td>
-        <td>${h.status}</td>
-        <td>
-          <button class="acc" onclick="acc(${pi},${hi})">ACC</button>
-          <button class="tolak" onclick="tolak(${pi},${hi})">TOLAK</button>
-        </td>
-      </tr>`;
-
-      if(h.type==="deposit") depositList.innerHTML+=row;
-      if(h.type==="withdraw") withdrawList.innerHTML+=row;
-    });
-  });
-}
-
-/* ===== ACC / TOLAK ===== */
-function acc(pi,hi){
-  const players = JSON.parse(localStorage.players);
-  const p = players[pi];
-  const h = p.history[hi];
-
-  if(h.type==="deposit") p.saldo += h.amount;
-  if(h.type==="withdraw") p.saldo -= h.amount;
-
-  h.status = "approved";
-  save(players);
-}
-
-function tolak(pi,hi){
-  const players = JSON.parse(localStorage.players);
-  players[pi].history[hi].status = "rejected";
-  save(players);
-}
-
-function save(players){
-  localStorage.players = JSON.stringify(players);
-  loadData();
-}
-
-/* ===== PASSWORD ===== */
-function openPass(){ document.getElementById("passModal").classList.remove("hidden"); }
-function closePass(){ document.getElementById("passModal").classList.add("hidden"); }
-
-function changePassword(){
-  if(oldPass.value !== localStorage.adminPass){
-    alert("Password lama salah"); return;
-  }
-  if(!newPass.value){
-    alert("Password baru kosong"); return;
-  }
-  localStorage.adminPass = newPass.value;
-  alert("Password berhasil diganti");
-  closePass();
+window.onload=()=>{
+ if(localStorage.adminLogin){
+  loginBox.style.display="none";
+  panel.classList.remove("hidden");
+  loadPlayers();
+ }else{
+  loginBox.style.display="block";
+ }
 }
 </script>
 
 </body>
-    </html>
+</html>
