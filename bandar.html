@@ -2,169 +2,249 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Panel Bandar - FANZZ777</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bandar Panel FANZZ777 DEWA</title>
 <style>
-body{
-  background:#000;
-  color:gold;
-  font-family:Arial,Helvetica,sans-serif;
-}
-h1{
-  text-align:center;
-  margin-top:20px;
-}
-button{
-  background:gold;
-  color:#000;
-  border:none;
-  padding:6px 12px;
-  border-radius:6px;
-  font-weight:bold;
-  cursor:pointer;
-}
-button:hover{opacity:.8}
-
-.table-wrap{
-  width:100%;
-  overflow-x:auto;
-}
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:20px;
-}
-th,td{
-  border:1px solid #333;
-  padding:10px;
-  text-align:center;
-}
-th{
-  background:#111;
-}
-.empty{
-  text-align:center;
-  margin-top:40px;
-  opacity:.7;
-}
-.topbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin:10px 0;
-}
-.refresh{
-  background:#ffd700;
-}
+body{margin:0;background:#000;color:gold;font-family:Arial}
+h1{text-align:center;padding:12px}
+button,input,select{background:#111;color:gold;border:1px solid gold;padding:7px;border-radius:6px;font-weight:bold}
+button{cursor:pointer}
+.acc{background:#00ff88;color:#000}
+.reject{background:#ff4444;color:#fff}
+.lock{background:#555}
+table{width:100%;border-collapse:collapse}
+th,td{border:1px solid #333;padding:7px;text-align:center}
+th{background:#111}
+.wrap{padding:8px}
+.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.box{background:#111;padding:8px;border-radius:8px}
+#chartContainer{width:90%;max-width:800px;margin:10px auto;background:#111;padding:10px;border-radius:12px}
+.hidden{display:none}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
 <body>
 
-<h1>📊 PANEL BANDAR</h1>
+<h1>📊 PANEL BANDAR – DEWA LEVEL</h1>
 
-<div class="topbar">
-  <div></div>
-  <button class="refresh" onclick="loadRequests()">🔄 Refresh</button>
+<div id="loginBox" class="wrap row">
+  <input id="bandarUser" placeholder="Username Bandar">
+  <input id="bandarPass" type="password" placeholder="Password Bandar">
+  <select id="bandarPermission">
+    <option value="acc">ACC Only</option>
+    <option value="view">View Only</option>
+  </select>
+  <button onclick="loginBandar()">Login</button>
 </div>
 
-<div class="table-wrap">
-<table>
-<thead>
-<tr>
-  <th>Username</th>
-  <th>Jenis</th>
-  <th>Nama Rekening</th>
-  <th>Nomor Rekening</th>
-  <th>Nominal</th>
-  <th>Status</th>
-</tr>
-</thead>
-<tbody id="reqTable"></tbody>
-</table>
-</div>
+<div id="panelBox" class="hidden">
+  <div class="wrap row">
+    <button onclick="load()">🔄 Refresh</button>
+    <button onclick="exportCSV()">⬇ CSV</button>
+    <button onclick="backup()">💾 Backup</button>
+    <input type="file" onchange="restore(this.files[0])">
+    <button onclick="logoutBandar()">Logout</button>
+  </div>
 
-<div id="emptyText" class="empty">
-  Tidak ada permintaan Deposit / Withdraw
+  <div class="wrap row">
+    <input id="search" placeholder="Cari user / nominal">
+    <select id="sort">
+      <option value="new">Terbaru</option>
+      <option value="old">Terlama</option>
+      <option value="big">Nominal Terbesar</option>
+    </select>
+    <select id="tab">
+      <option value="pending">⏳ Pending</option>
+      <option value="acc">✅ ACC</option>
+      <option value="reject">❌ Tolak</option>
+    </select>
+  </div>
+
+  <div class="wrap row">
+    <div class="box">Deposit ACC: <span id="dacc">0</span></div>
+    <div class="box">Withdraw ACC: <span id="wacc">0</span></div>
+    <div class="box">Profit: <span id="profit">0</span></div>
+  </div>
+
+  <table>
+  <thead>
+    <tr>
+      <th>Username</th>
+      <th>Jenis</th>
+      <th>Nama Rekening</th>
+      <th>Nomor Rekening</th>
+      <th>Nominal</th>
+      <th>Status</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody id="tb"></tbody>
+  </table>
+
+  <div class="wrap row">
+    <button onclick="prev()">⬅ Prev</button>
+    <span id="page">1</span>
+    <button onclick="next()">Next ➡</button>
+  </div>
+
+  <div id="chartContainer">
+    <canvas id="chart"></canvas>
+  </div>
 </div>
 
 <script>
-function loadRequests(){
-  const players = JSON.parse(localStorage.players || "[]");
-  const tbody = document.getElementById("reqTable");
-  const empty = document.getElementById("emptyText");
+let PAGE=1,PER=10,curBandar=null,checksumPrev=null;
 
-  tbody.innerHTML = "";
-  let found = false;
+function loginBandar(){
+  let u=bandarUser.value.trim();
+  let p=bandarPass.value.trim();
+  let perm=bandarPermission.value;
+  if(!u||!p){alert("Username & Password wajib");return;}
+  curBandar={username:u,permission:perm};
+  document.getElementById("loginBox").classList.add("hidden");
+  document.getElementById("panelBox").classList.remove("hidden");
+  load();
+}
 
-  players.forEach(player=>{
-    player.history.forEach(h=>{
-      if(typeof h === "object" && h.status === "pending"){
-        found = true;
+function logoutBandar(){
+  curBandar=null;
+  document.getElementById("loginBox").classList.remove("hidden");
+  document.getElementById("panelBox").classList.add("hidden");
+}
 
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${player.username}</td>
-          <td>${h.type.toUpperCase()}</td>
-          <td>${player.name}</td>
-          <td>${player.wallet ? player.wallet+" - "+player.walletNum : player.bank+" - "+player.bankNum}</td>
-          <td>${h.amount}</td>
-          <td>
-            <button onclick="acc('${player.username}','${h.type}',${h.amount},${h.time})">
-              ACC
-            </button>
-          </td>
-        `;
-        tbody.appendChild(tr);
+function getPlayers(){return JSON.parse(localStorage.players||"[]");}
+
+function calcChecksum(){return btoa(JSON.stringify(getPlayers()))}
+
+function verifyLocalStorage(){
+  let cs=calcChecksum();
+  if(checksumPrev && checksumPrev!==cs){
+    alert("Detected modification in localStorage! Memuat backup...");
+    let data=JSON.parse(localStorage.playersBackup||"[]");
+    localStorage.players=JSON.stringify(data);
+  }
+  checksumPrev=cs;
+}
+
+function load(){
+  if(!curBandar) return;
+  verifyLocalStorage();
+  let P=getPlayers();
+  let s=(search.value||"").toLowerCase();
+  let t=tab.value;
+  let rows=[],dacc=0,wacc=0;
+
+  P.forEach(u=>{
+    (u.history||[]).forEach(h=>{
+      if(typeof h!=="object")return;
+      if(t!==h.status)return;
+      if(s && !(`${u.username}${h.amount}`.toLowerCase().includes(s))) return;
+      rows.push({u,h});
+      if(h.status==="acc"){
+        if(h.type==="deposit")dacc+=h.amount;
+        if(h.type==="withdraw")wacc+=h.amount;
       }
     });
   });
 
-  empty.style.display = found ? "none" : "block";
+  rows.sort((a,b)=>{
+    if(sort.value==="big")return b.h.amount-a.h.amount;
+    if(sort.value==="old")return a.h.time-b.h.time;
+    return b.h.time-a.h.time;
+  });
+
+  let start=(PAGE-1)*PER;
+  let view=rows.slice(start,start+PER);
+  tb.innerHTML="";
+
+  view.forEach(o=>{
+    let {u,h}=o;
+    let tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td>${u.username}</td>
+      <td>${h.type}</td>
+      <td>${u.name}</td>
+      <td>${u.wallet?u.walletNum:u.bankNum}</td>
+      <td>${h.amount}</td>
+      <td>${h.status}</td>
+      <td>
+        ${curBandar.permission==="acc" && h.status==="pending"?`
+          <button class="acc" onclick="act('${u.username}',${h.amount},'${h.type}',${h.time},'acc')">ACC</button>
+          <button class="reject" onclick="act('${u.username}',${h.amount},'${h.type}',${h.time},'reject')">TOLAK</button>`:""}
+      </td>`;
+    tb.appendChild(tr);
+  });
+
+  page.innerText=PAGE;
+  document.getElementById("dacc").innerText=dacc;
+  document.getElementById("wacc").innerText=wacc;
+  document.getElementById("profit").innerText=dacc-wacc;
+
+  renderChart(dacc,wacc,dacc-wacc);
 }
 
-function acc(username,type,amount,time){
-  let players = JSON.parse(localStorage.players || "[]");
-
-  players = players.map(p=>{
-    if(p.username === username){
-      // update saldo
-      if(type === "deposit") p.saldo += amount;
-      if(type === "withdraw") p.saldo -= amount;
-
-      // update history
-      p.history = p.history.map(h=>{
-        if(
-          typeof h === "object" &&
-          h.status === "pending" &&
-          h.amount === amount &&
-          h.type === type &&
-          h.time === time
-        ){
-          h.status = "acc";
+function act(u,a,t,ti,st){
+  let P=getPlayers();
+  P=P.map(x=>{
+    if(x.username===u){
+      x.history=x.history.map(h=>{
+        if(h.time===ti && h.status==="pending"){
+          if(st==="acc"){
+            if(t==="withdraw" && x.saldo<a) return h;
+            if(t==="deposit") x.saldo+=a;
+            if(t==="withdraw") x.saldo-=a;
+          }
+          h.status=st;
         }
         return h;
       });
     }
-    return p;
+    return x;
   });
-
-  localStorage.players = JSON.stringify(players);
-
-  // update current player if same user open
-  let current = JSON.parse(localStorage.current || "null");
-  if(current && current.username === username){
-    const updated = players.find(p=>p.username===username);
-    localStorage.current = JSON.stringify(updated);
-  }
-
-  alert("ACC berhasil ✅ Saldo pemain terupdate");
-  loadRequests();
+  localStorage.playersBackup=localStorage.players;
+  localStorage.players=JSON.stringify(P);
+  load();
 }
 
-loadRequests();
-</script>
+function next(){PAGE++;load()}
+function prev(){if(PAGE>1)PAGE--;load()}
 
+function exportCSV(){
+  let P=getPlayers(),r=["user,type,amount,status"];
+  P.forEach(x=>(x.history||[]).forEach(h=>r.push(`${x.username},${h.type},${h.amount},${h.status}`)));
+  let b=new Blob([r.join("\n")]);let a=document.createElement("a");
+  a.href=URL.createObjectURL(b);a.download="history.csv";a.click();
+}
+
+function backup(){localStorage.playersBackup=localStorage.players;alert("Backup berhasil");}
+
+function restore(f){
+  let r=new FileReader();
+  r.onload=()=>{let d=JSON.parse(r.result);
+    if(d.players) localStorage.players=JSON.stringify(d.players);
+    load();
+  };
+  r.readAsText(f);
+}
+
+function renderChart(dep,wd,profit){
+  if(window.myChart) window.myChart.destroy();
+  const ctx=document.getElementById("chart").getContext("2d");
+  window.myChart=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:['Deposit ACC','Withdraw ACC','Profit'],
+      datasets:[{
+        label:'FANZZ777',
+        data:[dep,wd,profit],
+        backgroundColor:['#00ff88','#ff4444','#ffff00']
+      }]
+    },
+    options:{responsive:true,plugins:{legend:{display:false}}}
+  });
+}
+
+setInterval(load,3000);
+</script>
 </body>
-</html>
+  </html>
