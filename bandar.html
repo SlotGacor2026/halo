@@ -2,249 +2,168 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Bandar Panel FANZZ777 DEWA</title>
-<style>
-body{margin:0;background:#000;color:gold;font-family:Arial}
-h1{text-align:center;padding:12px}
-button,input,select{background:#111;color:gold;border:1px solid gold;padding:7px;border-radius:6px;font-weight:bold}
-button{cursor:pointer}
-.acc{background:#00ff88;color:#000}
-.reject{background:#ff4444;color:#fff}
-.lock{background:#555}
-table{width:100%;border-collapse:collapse}
-th,td{border:1px solid #333;padding:7px;text-align:center}
-th{background:#111}
-.wrap{padding:8px}
-.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-.box{background:#111;padding:8px;border-radius:8px}
-#chartContainer{width:90%;max-width:800px;margin:10px auto;background:#111;padding:10px;border-radius:12px}
-.hidden{display:none}
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FANZZ777 - Bandar Panel</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/header.css">
+<link rel="stylesheet" href="css/menu.css">
+<link rel="stylesheet" href="css/animation.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{background:#111;color:gold;font-family:sans-serif}
+.header{display:flex;justify-content:space-between;padding:10px;background:#000;border-bottom:2px solid gold}
+.header .logo{font-weight:bold;font-size:1.5em;color:gold}
+.menu{display:flex;gap:5px;flex-wrap:wrap;margin:5px 0}
+.menu button{flex:1;padding:8px;background:#222;color:gold;border:none;border-radius:6px;cursor:pointer}
+.menu button:hover{background:gold;color:#111}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border:1px solid gold;padding:5px;text-align:center}
+th{background:#222}
+.modal{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+background:#111;color:gold;padding:20px;border-radius:12px;z-index:1000;max-width:600px;width:90%;box-shadow:0 0 20px gold}
+button{cursor:pointer;font-weight:bold;border:none;border-radius:6px;padding:6px 12px;margin:3px;background:gold;color:#111}
+#authModal input,#authModal select{margin:5px 0;padding:5px;width:100%;border-radius:6px;background:#000;color:gold;border:1px solid gold}
+#authModal button{margin-top:10px;width:100%}
+#chartContainer{width:100%;max-width:600px;margin-top:20px}
+</style>
 </head>
 <body>
 
-<h1>📊 PANEL BANDAR – DEWA LEVEL</h1>
+<header class="header">
+  <div class="logo">FANZZ777 - Bandar Panel</div>
+</header>
 
-<div id="loginBox" class="wrap row">
-  <input id="bandarUser" placeholder="Username Bandar">
-  <input id="bandarPass" type="password" placeholder="Password Bandar">
-  <select id="bandarPermission">
-    <option value="acc">ACC Only</option>
-    <option value="view">View Only</option>
-  </select>
-  <button onclick="loginBandar()">Login</button>
+<main>
+<h2>Daftar Transaksi Pemain</h2>
+<table>
+<thead>
+<tr>
+<th>Username</th>
+<th>Jenis Rekening</th>
+<th>Nama Rekening</th>
+<th>Nomor Rekening / Wallet</th>
+<th>Deposit</th>
+<th>Withdraw</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody id="playerTable"></tbody>
+</table>
+
+<div id="chartContainer">
+<canvas id="chart"></canvas>
 </div>
+</main>
 
-<div id="panelBox" class="hidden">
-  <div class="wrap row">
-    <button onclick="load()">🔄 Refresh</button>
-    <button onclick="exportCSV()">⬇ CSV</button>
-    <button onclick="backup()">💾 Backup</button>
-    <input type="file" onchange="restore(this.files[0])">
-    <button onclick="logoutBandar()">Logout</button>
-  </div>
-
-  <div class="wrap row">
-    <input id="search" placeholder="Cari user / nominal">
-    <select id="sort">
-      <option value="new">Terbaru</option>
-      <option value="old">Terlama</option>
-      <option value="big">Nominal Terbesar</option>
-    </select>
-    <select id="tab">
-      <option value="pending">⏳ Pending</option>
-      <option value="acc">✅ ACC</option>
-      <option value="reject">❌ Tolak</option>
-    </select>
-  </div>
-
-  <div class="wrap row">
-    <div class="box">Deposit ACC: <span id="dacc">0</span></div>
-    <div class="box">Withdraw ACC: <span id="wacc">0</span></div>
-    <div class="box">Profit: <span id="profit">0</span></div>
-  </div>
-
-  <table>
-  <thead>
-    <tr>
-      <th>Username</th>
-      <th>Jenis</th>
-      <th>Nama Rekening</th>
-      <th>Nomor Rekening</th>
-      <th>Nominal</th>
-      <th>Status</th>
-      <th>Aksi</th>
-    </tr>
-  </thead>
-  <tbody id="tb"></tbody>
-  </table>
-
-  <div class="wrap row">
-    <button onclick="prev()">⬅ Prev</button>
-    <span id="page">1</span>
-    <button onclick="next()">Next ➡</button>
-  </div>
-
-  <div id="chartContainer">
-    <canvas id="chart"></canvas>
-  </div>
+<!-- LOGIN MODAL BANDAR -->
+<div id="authModal" class="modal">
+<h3>Login Bandar</h3>
+<input id="bandarUsername" placeholder="Username">
+<input id="bandarPassword" type="password" placeholder="Password">
+<button onclick="loginBandar()">Login</button>
 </div>
 
 <script>
-let PAGE=1,PER=10,curBandar=null,checksumPrev=null;
+// === BANDAR LOGIN ===
+let bandars = [
+  {username:"bandar1",password:"fanzz777"},
+  {username:"bandar2",password:"fanzz888"}
+];
+let currentBandar = null;
 
 function loginBandar(){
-  let u=bandarUser.value.trim();
-  let p=bandarPass.value.trim();
-  let perm=bandarPermission.value;
-  if(!u||!p){alert("Username & Password wajib");return;}
-  curBandar={username:u,permission:perm};
-  document.getElementById("loginBox").classList.add("hidden");
-  document.getElementById("panelBox").classList.remove("hidden");
-  load();
+  const u = document.getElementById('bandarUsername').value;
+  const p = document.getElementById('bandarPassword').value;
+  const b = bandars.find(x=>x.username===u && x.password===p);
+  if(!b){alert("Username atau password salah");return;}
+  currentBandar = b;
+  document.getElementById('authModal').style.display='none';
+  loadPlayers();
 }
 
-function logoutBandar(){
-  curBandar=null;
-  document.getElementById("loginBox").classList.remove("hidden");
-  document.getElementById("panelBox").classList.add("hidden");
-}
+// === GET PLAYERS ===
+function getPlayers(){return JSON.parse(localStorage.players||"[]")}
 
-function getPlayers(){return JSON.parse(localStorage.players||"[]");}
-
-function calcChecksum(){return btoa(JSON.stringify(getPlayers()))}
-
-function verifyLocalStorage(){
-  let cs=calcChecksum();
-  if(checksumPrev && checksumPrev!==cs){
-    alert("Detected modification in localStorage! Memuat backup...");
-    let data=JSON.parse(localStorage.playersBackup||"[]");
-    localStorage.players=JSON.stringify(data);
-  }
-  checksumPrev=cs;
-}
-
-function load(){
-  if(!curBandar) return;
-  verifyLocalStorage();
-  let P=getPlayers();
-  let s=(search.value||"").toLowerCase();
-  let t=tab.value;
-  let rows=[],dacc=0,wacc=0;
-
-  P.forEach(u=>{
-    (u.history||[]).forEach(h=>{
-      if(typeof h!=="object")return;
-      if(t!==h.status)return;
-      if(s && !(`${u.username}${h.amount}`.toLowerCase().includes(s))) return;
-      rows.push({u,h});
-      if(h.status==="acc"){
-        if(h.type==="deposit")dacc+=h.amount;
-        if(h.type==="withdraw")wacc+=h.amount;
+// === LOAD TABEL PEMAIN ===
+function loadPlayers(){
+  const tbody = document.getElementById('playerTable');
+  const players = getPlayers();
+  tbody.innerHTML = "";
+  let chartLabels=[], chartDeposit=[], chartWithdraw=[];
+  players.forEach(p=>{
+    p.history.forEach((h,i)=>{
+      let type = h.split(" ")[0];
+      let amt = h.split(" ")[1];
+      let status = h.includes("ACC")?"acc":"pending";
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${p.username}</td>
+        <td>${p.wallet||p.bank}</td>
+        <td>${p.name}</td>
+        <td>${p.walletNum||p.bankNum}</td>
+        <td>${type==="Deposit"?amt:0}</td>
+        <td>${type==="Withdraw"?amt:0}</td>
+        <td>${status === "pending" ? `<button onclick="act('${p.username}',${amt},'${type}',${i},'acc')">ACC</button>`: "✓ ACC"}</td>
+      `;
+      tbody.appendChild(tr);
+      if(status==="acc"){
+        chartLabels.push(p.username);
+        chartDeposit.push(type==="Deposit"?Number(amt):0);
+        chartWithdraw.push(type==="Withdraw"?Number(amt):0);
       }
-    });
-  });
-
-  rows.sort((a,b)=>{
-    if(sort.value==="big")return b.h.amount-a.h.amount;
-    if(sort.value==="old")return a.h.time-b.h.time;
-    return b.h.time-a.h.time;
-  });
-
-  let start=(PAGE-1)*PER;
-  let view=rows.slice(start,start+PER);
-  tb.innerHTML="";
-
-  view.forEach(o=>{
-    let {u,h}=o;
-    let tr=document.createElement("tr");
-    tr.innerHTML=`
-      <td>${u.username}</td>
-      <td>${h.type}</td>
-      <td>${u.name}</td>
-      <td>${u.wallet?u.walletNum:u.bankNum}</td>
-      <td>${h.amount}</td>
-      <td>${h.status}</td>
-      <td>
-        ${curBandar.permission==="acc" && h.status==="pending"?`
-          <button class="acc" onclick="act('${u.username}',${h.amount},'${h.type}',${h.time},'acc')">ACC</button>
-          <button class="reject" onclick="act('${u.username}',${h.amount},'${h.type}',${h.time},'reject')">TOLAK</button>`:""}
-      </td>`;
-    tb.appendChild(tr);
-  });
-
-  page.innerText=PAGE;
-  document.getElementById("dacc").innerText=dacc;
-  document.getElementById("wacc").innerText=wacc;
-  document.getElementById("profit").innerText=dacc-wacc;
-
-  renderChart(dacc,wacc,dacc-wacc);
+    })
+  })
+  updateChart(chartLabels,chartDeposit,chartWithdraw);
 }
 
-function act(u,a,t,ti,st){
-  let P=getPlayers();
-  P=P.map(x=>{
-    if(x.username===u){
-      x.history=x.history.map(h=>{
-        if(h.time===ti && h.status==="pending"){
+// === ACC TRANSAKSI ===
+function act(u,a,t,idx,st){
+  let P = getPlayers();
+  P = P.map(x=>{
+    if(x.username === u){
+      x.history = x.history.map((h,i)=>{
+        if(i===idx && h.includes("Menunggu")){
           if(st==="acc"){
-            if(t==="withdraw" && x.saldo<a) return h;
-            if(t==="deposit") x.saldo+=a;
-            if(t==="withdraw") x.saldo-=a;
+            if(t==="Deposit") x.saldo += Number(a);
+            if(t==="Withdraw") x.saldo -= Number(a);
           }
-          h.status=st;
+          h = h.replace("Menunggu ACC","ACC");
         }
         return h;
       });
     }
     return x;
   });
-  localStorage.playersBackup=localStorage.players;
-  localStorage.players=JSON.stringify(P);
-  load();
+  localStorage.players = JSON.stringify(P);
+  localStorage.playersBackup = localStorage.players;
+  loadPlayers();
 }
 
-function next(){PAGE++;load()}
-function prev(){if(PAGE>1)PAGE--;load()}
-
-function exportCSV(){
-  let P=getPlayers(),r=["user,type,amount,status"];
-  P.forEach(x=>(x.history||[]).forEach(h=>r.push(`${x.username},${h.type},${h.amount},${h.status}`)));
-  let b=new Blob([r.join("\n")]);let a=document.createElement("a");
-  a.href=URL.createObjectURL(b);a.download="history.csv";a.click();
-}
-
-function backup(){localStorage.playersBackup=localStorage.players;alert("Backup berhasil");}
-
-function restore(f){
-  let r=new FileReader();
-  r.onload=()=>{let d=JSON.parse(r.result);
-    if(d.players) localStorage.players=JSON.stringify(d.players);
-    load();
-  };
-  r.readAsText(f);
-}
-
-function renderChart(dep,wd,profit){
-  if(window.myChart) window.myChart.destroy();
-  const ctx=document.getElementById("chart").getContext("2d");
-  window.myChart=new Chart(ctx,{
+// === CHART GRAFIK ===
+let chartObj;
+function updateChart(labels,dDeposit,dWithdraw){
+  const ctx = document.getElementById('chart').getContext('2d');
+  if(chartObj) chartObj.destroy();
+  chartObj = new Chart(ctx,{
     type:'bar',
     data:{
-      labels:['Deposit ACC','Withdraw ACC','Profit'],
-      datasets:[{
-        label:'FANZZ777',
-        data:[dep,wd,profit],
-        backgroundColor:['#00ff88','#ff4444','#ffff00']
-      }]
+      labels:labels,
+      datasets:[
+        {label:'Deposit',data:dDeposit,backgroundColor:'gold'},
+        {label:'Withdraw',data:dWithdraw,backgroundColor:'red'}
+      ]
     },
-    options:{responsive:true,plugins:{legend:{display:false}}}
+    options:{
+      responsive:true,
+      plugins:{legend:{labels:{color:'gold'}}},
+      scales:{x:{ticks:{color:'gold'}},y:{ticks:{color:'gold'}}}
+    }
   });
 }
 
-setInterval(load,3000);
+// === AUTO SHOW LOGIN ===
+window.onload = ()=>{ document.getElementById('authModal').style.display='block' }
 </script>
 </body>
-  </html>
+</html>
