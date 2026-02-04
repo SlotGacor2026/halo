@@ -10,196 +10,109 @@
 <link rel="stylesheet" href="css/menu.css">
 <link rel="stylesheet" href="css/animation.css">
 
-<style>
+<script>
 
-/* ===== GLOBAL PREMIUM BG ===== */
-body{
-  background: radial-gradient(circle at top,#111,#000 60%);
-  font-family: 'Segoe UI', Tahoma, sans-serif;
-  color: gold;
-  margin:0;
+/* =====================
+   SAFE STORAGE INIT
+===================== */
+if(!localStorage.players){
+ localStorage.players = JSON.stringify([]);
 }
 
-/* ===== HEADER COIN ===== */
-#coinBox{
-  background:linear-gradient(145deg,#000,#222);
-  color:gold;
-  padding:6px 14px;
-  border-radius:20px;
-  font-weight:bold;
-  box-shadow:0 0 10px gold, inset 0 0 8px rgba(255,215,0,.3);
-  animation: coinGlow 2s infinite alternate;
+/* =====================
+   GET PLAYER DATA
+===================== */
+function getPlayer(){
+ try{
+  let p = localStorage.getItem("current");
+  if(!p) return null;
+  return JSON.parse(p);
+ }catch{
+  return null;
+ }
 }
 
-@keyframes coinGlow{
-  from{box-shadow:0 0 5px gold;}
-  to{box-shadow:0 0 18px gold;}
-}
+/* =====================
+   UPDATE COIN DISPLAY
+===================== */
+function updateCoin(){
+ try{
+  let p = getPlayer();
+  let coinBox = document.getElementById("coinBox");
 
-/* ===== HEADER ===== */
-.header{
-  backdrop-filter: blur(10px);
-  background: rgba(0,0,0,.7);
-  border-bottom:1px solid rgba(255,215,0,.2);
-}
+  if(!coinBox) return;
 
-/* ===== MENU ICON ===== */
-.menu{
-  padding:10px;
-  display:flex;
-  gap:10px;
-  overflow-x:auto;
-}
-
-.menu button{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  background:linear-gradient(145deg,#111,#000);
-  border:1px solid rgba(255,215,0,.2);
-  color:gold;
-  padding:8px 14px;
-  border-radius:12px;
-  transition:.3s;
-}
-
-.menu button:hover{
-  transform:translateY(-3px);
-  box-shadow:0 0 15px gold;
-}
-
-.menu img{
-  width:18px;
-  height:18px;
-}
-
-/* ===== BANNER ===== */
-.banner{
-  padding:15px;
-}
-
-.banner-slider img{
-  width:100%;
-  border-radius:15px;
-  box-shadow:0 0 25px rgba(255,215,0,.3);
-  transition:transform .5s;
-}
-
-.banner-slider img:hover{
-  transform:scale(1.03);
-}
-
-/* ===== CONTENT CARD ===== */
-.content{
-  padding:15px;
-}
-
-.actions{
-  background: rgba(20,20,20,.7);
-  backdrop-filter: blur(10px);
-  padding:20px;
-  border-radius:20px;
-  border:1px solid rgba(255,215,0,.2);
-  box-shadow:0 0 25px rgba(255,215,0,.1);
-}
-
-/* ===== BUTTON PREMIUM ===== */
-.actions button{
-  background:linear-gradient(145deg,gold,#ffcc00);
-  color:black;
-  font-weight:bold;
-  padding:10px 18px;
-  border:none;
-  border-radius:12px;
-  margin:6px;
-  transition:.3s;
-}
-
-.actions button:hover{
-  transform:translateY(-2px);
-  box-shadow:0 0 15px gold;
-}
-
-/* ===== GOLD BLACK AUTH ===== */
-#authModal{
-  background:linear-gradient(145deg,#000,#1a1a1a);
-  color:gold;
-  box-shadow:0 0 25px gold;
-  border-radius:20px;
-  padding:20px;
-}
-
-#authModal input,#authModal select{
-  background:#000;
-  color:gold;
-  border:1px solid gold;
-  border-radius:10px;
-  padding:8px;
-  margin:5px 0;
-}
-
-#authModal button{
-  background:gold;
-  color:#000;
-  font-weight:bold;
-  border-radius:12px;
-  padding:10px;
-}
-
-/* ===== MODAL ===== */
-.modal{
-  display:none;
-  position:fixed;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%) scale(.9);
-  background:#111;
-  color:gold;
-  padding:20px;
-  border-radius:20px;
-  width:90%;
-  max-width:400px;
-  z-index:1000;
-  box-shadow:0 0 25px gold;
-  animation: modalShow .3s forwards;
-}
-
-@keyframes modalShow{
-  to{
-    transform:translate(-50%,-50%) scale(1);
+  if(!p){
+   coinBox.innerHTML = "💰 Coin: 0";
+   return;
   }
+
+  coinBox.innerHTML = "💰 Coin: " + (p.saldo || 0);
+
+ }catch(e){
+  console.log("Coin Error:", e);
+ }
 }
 
-.panel{
-  display:none;
-  background:#111;
-  color:gold;
-  padding:15px;
-  border-radius:15px;
-  margin-top:15px;
-  border:1px solid rgba(255,215,0,.2);
+/* =====================
+   SAVE PLAYER DATA
+===================== */
+function save(p){
+ try{
+  let players = JSON.parse(localStorage.players || "[]");
+
+  players = players.map(x =>
+   x.username === p.username ? p : x
+  );
+
+  localStorage.players = JSON.stringify(players);
+  localStorage.current = JSON.stringify(p);
+
+  updateCoin();
+
+ }catch(e){
+  console.log("Save Error:", e);
+ }
 }
 
-/* ===== WA ===== */
-#waButton{
-  position:fixed;
-  bottom:20px;
-  left:20px;
-  width:60px;
-  z-index:1000;
-  filter: drop-shadow(0 0 10px gold);
-  transition:.3s;
+/* =====================
+   LOGOUT PLAYER
+===================== */
+function logoutPlayer(){
+ localStorage.removeItem("current");
+ location.reload();
 }
 
-#waButton:hover{
-  transform:scale(1.1);
+/* =====================
+   PREMIUM LOADING EFFECT
+===================== */
+function hideLoading(){
+ let loader = document.getElementById("loadingScreen");
+ if(loader){
+  loader.style.opacity = "0";
+  setTimeout(()=> loader.style.display="none",500);
+ }
 }
 
-#waButton img{
-  width:100%;
-}
+/* =====================
+   BANNER AUTO SLIDE
+===================== */
+let slideIndex = 0;
 
-</style>
+function autoSlideBanner(){
+ let slides = document.querySelectorAll(".banner-slider img");
+ if(!slides.length) return;
+
+ slides.forEach(s => s.style.display = "none");
+
+ slideIndex++;
+ if(slideIndex > slides.length){
+  slideIndex = 1;
+ }
+
+ slides[slideIndex-1].style.display = "block";
+}
+</script>
 </head>
 
 <body>
@@ -393,15 +306,37 @@ window.onload=()=>{
  else updateCoin();
 }
 
-/* AUTO SLIDE BANNER */
-let slideIndex=0;
-setInterval(()=>{
-  let slides=document.querySelectorAll(".banner-slider img");
-  slides.forEach(s=>s.style.display="none");
+/* =====================
+   FAST LOAD START
+===================== */
+
+document.addEventListener("DOMContentLoaded", ()=>{
+
+ updateCoin();
+
+ /* AUTO SLIDE BANNER */
+ let slideIndex = 0;
+
+ function autoSlideBanner(){
+  let slides = document.querySelectorAll(".banner-slider img");
+  if(!slides.length) return;
+
+  slides.forEach(s => s.style.display = "none");
+
   slideIndex++;
-  if(slideIndex>slides.length) slideIndex=1;
-  slides[slideIndex-1].style.display="block";
-},3000);
+  if(slideIndex > slides.length){
+   slideIndex = 1;
+  }
+
+  slides[slideIndex-1].style.display = "block";
+ }
+
+ autoSlideBanner();
+ setInterval(autoSlideBanner, 2500);
+
+ setTimeout(hideLoading, 500);
+
+});
 </script>
 
 </body>
