@@ -1,256 +1,260 @@
-<!DOCTYPE html>    
-<html lang="id">    
-<head>    
-<meta charset="UTF-8">    
-<meta name="viewport" content="width=device-width, initial-scale=1.0">    
-<title>FANZZ777</title>    
-    
-<link rel="stylesheet" href="css/base.css">    
-<link rel="stylesheet" href="css/header.css">    
-<link rel="stylesheet" href="css/menu.css">    
-<link rel="stylesheet" href="css/animation.css">    
-    
-<style>    
-/* ===== GOLD BLACK AUTH ===== */    
-#authModal{    
-  background:linear-gradient(145deg,#000,#1a1a1a);    
-  color:gold;    
-  box-shadow:0 0 25px gold;    
-}    
-#authModal h3{ text-align:center; }    
-#authModal input,#authModal select{    
-  background:#000;    
-  color:gold;    
-  border:1px solid gold;    
-}    
-#authModal button{    
-  background:gold;    
-  color:#000;    
-  font-weight:bold;    
-}    
-    
-/* ===== MODAL ===== */    
-.modal{    
-  display:none; position:fixed; top:50%; left:50%;    
-  transform:translate(-50%,-50%);    
-  background:#111; color:gold;    
-  padding:20px; border-radius:12px;    
-  width:90%; max-width:400px;    
-  z-index:1000;    
-  box-shadow:0 0 20px gold;    
-}    
-.panel{ display:none; background:#111; color:gold; padding:10px; border-radius:10px }    
-    
-/* ===== BUTTON ===== */    
-.modal button{ margin:5px; padding:8px 14px; border-radius:8px; border:none; font-weight:bold }    
-    
-/* ===== COIN BOX (TAMBAHAN SAJA) ===== */
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FANZZ777</title>
+
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/header.css">
+<link rel="stylesheet" href="css/menu.css">
+<link rel="stylesheet" href="css/animation.css">
+
+<style>
+/* ===== HEADER COIN ===== */
 #coinBox{
   background:#111;
-  border:1px solid gold;
   color:gold;
   padding:6px 12px;
-  border-radius:8px;
+  border-radius:20px;
   font-weight:bold;
+  box-shadow:0 0 10px gold;
 }
 
-/* ===== WA ===== */    
-#waButton{ position:fixed; bottom:20px; left:20px; width:60px; z-index:1000; animation:pulse 1.5s infinite }    
-#waButton img{ width:100% }    
-@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.2)}100%{transform:scale(1)}}    
-</style>    
-</head>    
-    
-<body>    
-    
-<header class="header gold">    
-  <div class="logo">FANZZ777</div>    
-  <div id="coinBox">💰 Coin: <span id="coin">0</span></div>    
-</header>    
-    
-<nav class="menu">    
-  <button>Slot</button>    
-  <button>Casino</button>    
-  <button>Togel</button>    
-  <button>Arcade</button>    
-  <button>Poker</button>    
-  <button>Developer</button>    
-</nav>    
-    
-<section class="banner">    
-  <div class="banner-slider">    
-    <img src="assets/banners/banner_main.jpg">    
-    <img src="assets/banners/banner_pgsoft.jpg">    
-    <img src="assets/banners/banner_pragmatic.jpg">    
-    <img src="assets/banners/banner_TopUp.jpg">    
-    <img src="assets/banners/banner_jualbeli.jpg">    
-    <img src="assets/banners/banner_saya.jpg">    
-    <img src="assets/banners/banner_teman.jpg">    
-    <img src="assets/banners/banner_foto1.jpg">
-  </div>    
-</section>    
-    
-<main class="content">    
-<h2>MENU 💰</h2>    
-    
-<div class="actions">    
-  <button onclick="openDeposit()">Deposit</button>    
-  <button onclick="openWithdraw()">Withdraw</button>    
-  <button onclick="showHistory()">Histori</button>    
-  <button onclick="showLeaderboard()">Leaderboard</button>    
-  <button onclick="logoutPlayer()">Logout</button>    
-</div>    
-    
-<!-- DEPOSIT -->    
-<div id="depositModal" class="modal">    
-<h3>Deposit</h3>    
-<p>Rekening kamu: <b id="depAcc"></b></p>    
-<input type="number" id="depositAmount" placeholder="Minimal 10.000">    
-<p>Nomor Tujuan:</p>    
-<img src="assets/qris/qris_main.jpg" width="150">    
-<br><br>    
-<button onclick="submitDeposit()">Konfirmasi</button>    
-<button onclick="closeAll()">Batal</button>    
-</div>    
-    
-<!-- WITHDRAW -->    
-<div id="withdrawModal" class="modal">    
-<h3>Withdraw</h3>    
-<p>Rekening kamu: <b id="wdAcc"></b></p>    
-<input type="number" id="withdrawAmount" placeholder="Minimal 50.000">    
-<br><br>    
-<button onclick="submitWithdraw()">Konfirmasi</button>    
-<button onclick="closeAll()">Batal</button>    
-</div>    
-    
-<div id="historyPanel" class="panel"><ul id="historyList"></ul></div>    
-<div id="leaderboardPanel" class="panel"><ul id="leaderboardList"></ul></div>    
-</main>    
-    
-<!-- AUTH -->    
-<div id="authModal">    
-<h3>Login / Daftar</h3>    
-<input id="regUsername" placeholder="Username">    
-<input id="regPassword" type="password" placeholder="Password">    
-<input id="regConfirm" type="password" placeholder="Konfirmasi Password">    
-<input id="regEmail" placeholder="Email">    
-    
-<b>Nama Rekening</b>    
-<input id="regName" placeholder="Nama Pemilik Rekening">    
-    
-<select id="regWallet">    
-<option value="">Pilih E-Wallet</option>    
-<option>DANA</option><option>GOPAY</option><option>OVO</option>    
-<option>SHOPEEPAY</option><option>LINKAJA</option><option>ASTRAPAY</option>    
-</select>    
-<input id="regWalletNum" placeholder="Nomor E-Wallet">    
-    
-<select id="regBank">    
-<option value="">Pilih Bank</option>    
-<option>BRI</option><option>BCA</option><option>BNI</option>    
-<option>MANDIRI</option><option>PERMATA</option><option>CIMB</option>    
-<option>BSI</option><option>BPD</option>    
-</select>    
-<input id="regBankNum" placeholder="Nomor Bank">    
-    
-<input id="regRef" placeholder="Kode Referal (opsional)">    
-<button onclick="registerPlayer()">Konfirmasi</button>    
-</div>    
-    
-<a id="waButton" href="https://wa.me/6289618602130" target="_blank">    
-<img src="assets/icons/whatsapp.png">    
-</a>    
-    
-<script>    
-function registerPlayer(){    
- const u=regUsername.value,p=regPassword.value,c=regConfirm.value;    
- const e=regEmail.value,n=regName.value;    
- const w=regWallet.value,wn=regWalletNum.value;    
- const b=regBank.value,bn=regBankNum.value;    
-    
- if(!u||!p||!c||!e||!n||(!w&&!b)||((w&&!wn)||(b&&!bn))){    
-  alert("Semua wajib diisi kecuali referal"); return;    
- }    
- if(p!==c){alert("Password beda");return}    
-    
- let data=JSON.parse(localStorage.players||"[]");    
- if(data.find(x=>x.username===u)){alert("Username dipakai");return}    
-    
- let pl={username:u,password:p,email:e,name:n,    
- wallet:w,walletNum:wn,bank:b,bankNum:bn,    
- saldo:0,history:[]}    
- data.push(pl);    
- localStorage.players=JSON.stringify(data);    
- localStorage.current=JSON.stringify(pl);    
- location.reload();    
-}    
-    
-function getPlayer(){ return JSON.parse(localStorage.current||"null") }    
+/* ===== MENU ICON ===== */
+.menu button{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.menu img{
+  width:18px;
+  height:18px;
+}
 
-/* ===== COIN SYNC (TAMBAHAN) ===== */
-function syncCoin(){
+/* ===== GOLD BLACK AUTH ===== */
+#authModal{
+  background:linear-gradient(145deg,#000,#1a1a1a);
+  color:gold;
+  box-shadow:0 0 25px gold;
+}
+#authModal input,#authModal select{
+  background:#000;color:gold;border:1px solid gold;
+}
+#authModal button{
+  background:gold;color:#000;font-weight:bold;
+}
+
+/* ===== MODAL ===== */
+.modal{
+  display:none;position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  background:#111;color:gold;
+  padding:20px;border-radius:12px;
+  width:90%;max-width:400px;
+  z-index:1000;
+  box-shadow:0 0 20px gold;
+}
+.panel{display:none;background:#111;color:gold;padding:10px;border-radius:10px}
+.modal button{margin:5px;padding:8px 14px;border-radius:8px;border:none;font-weight:bold}
+
+/* ===== WA ===== */
+#waButton{position:fixed;bottom:20px;left:20px;width:60px;z-index:1000}
+#waButton img{width:100%}
+</style>
+</head>
+
+<body>
+
+<header class="header gold">
+  <div class="logo">FANZZ777</div>
+  <div id="coinBox">💰 Coin: 0</div>
+</header>
+
+<nav class="menu">
+  <button><img src="assets/icons/slot.png">Slot</button>
+  <button><img src="assets/icons/casino.png">Casino</button>
+  <button><img src="assets/icons/togel.png">Togel</button>
+  <button><img src="assets/icons/arcade.png">Arcade</button>
+  <button><img src="assets/icons/poker.png">Poker</button>
+  <button><img src="assets/icons/dev.png">Developer</button>
+</nav>
+
+<section class="banner">
+  <div class="banner-slider">
+    <img src="assets/banners/banner_main.jpg">
+    <img src="assets/banners/banner_pgsoft.jpg">
+    <img src="assets/banners/banner_pragmatic.jpg">
+    <img src="assets/banners/banner_TopUp.jpg">
+    <img src="assets/banners/banner_jualbeli.jpg">
+    <img src="assets/banners/banner_saya.jpg">
+    <img src="assets/banners/banner_teman.jpg">
+  </div>
+</section>
+
+<main class="content">
+<h2>MENU 💰</h2>
+
+<div class="actions">
+  <button onclick="openDeposit()">Deposit</button>
+  <button onclick="openWithdraw()">Withdraw</button>
+  <button onclick="showHistory()">Histori</button>
+  <button onclick="showLeaderboard()">Leaderboard</button>
+  <button onclick="logoutPlayer()">Logout</button>
+</div>
+
+<!-- DEPOSIT -->
+<div id="depositModal" class="modal">
+<h3>Deposit</h3>
+<p>Rekening kamu: <b id="depAcc"></b></p>
+<input type="number" id="depositAmount" placeholder="Minimal 10.000">
+<p>Nomor Tujuan:</p>
+<img src="assets/qris/qris_main.jpg" width="150">
+<br><br>
+<button onclick="submitDeposit()">Konfirmasi</button>
+<button onclick="closeAll()">Batal</button>
+</div>
+
+<!-- WITHDRAW -->
+<div id="withdrawModal" class="modal">
+<h3>Withdraw</h3>
+<p>Rekening kamu: <b id="wdAcc"></b></p>
+<input type="number" id="withdrawAmount" placeholder="Minimal 50.000">
+<br><br>
+<button onclick="submitWithdraw()">Konfirmasi</button>
+<button onclick="closeAll()">Batal</button>
+</div>
+
+<div id="historyPanel" class="panel"><ul id="historyList"></ul></div>
+<div id="leaderboardPanel" class="panel"><ul id="leaderboardList"></ul></div>
+</main>
+
+<!-- AUTH -->
+<div id="authModal">
+<h3>Login / Daftar</h3>
+<input id="regUsername" placeholder="Username">
+<input id="regPassword" type="password" placeholder="Password">
+<input id="regConfirm" type="password" placeholder="Konfirmasi Password">
+<input id="regEmail" placeholder="Email">
+
+<b>Nama Rekening</b>
+<input id="regName" placeholder="Nama Pemilik Rekening">
+
+<select id="regWallet">
+<option value="">Pilih E-Wallet</option>
+<option>DANA</option><option>GOPAY</option><option>OVO</option>
+<option>SHOPEEPAY</option><option>LINKAJA</option><option>ASTRAPAY</option>
+</select>
+<input id="regWalletNum" placeholder="Nomor E-Wallet">
+
+<select id="regBank">
+<option value="">Pilih Bank</option>
+<option>BRI</option><option>BCA</option><option>BNI</option>
+<option>MANDIRI</option><option>PERMATA</option><option>CIMB</option>
+<option>BSI</option><option>BPD</option>
+</select>
+<input id="regBankNum" placeholder="Nomor Bank">
+
+<button onclick="registerPlayer()">Konfirmasi</button>
+</div>
+
+<a id="waButton" href="https://wa.me/6289618602130" target="_blank">
+<img src="assets/icons/whatsapp.png">
+</a>
+
+<script>
+function registerPlayer(){
+ const u=regUsername.value,p=regPassword.value,c=regConfirm.value;
+ const e=regEmail.value,n=regName.value;
+ const w=regWallet.value,wn=regWalletNum.value;
+ const b=regBank.value,bn=regBankNum.value;
+ if(!u||!p||!c||!e||!n||(!w&&!b)||((w&&!wn)||(b&&!bn))) return alert("Lengkapi data");
+ if(p!==c) return alert("Password beda");
+
+ let data=JSON.parse(localStorage.players||"[]");
+ if(data.find(x=>x.username===u)) return alert("Username dipakai");
+
+ let pl={username:u,password:p,email:e,name:n,
+ wallet:w,walletNum:wn,bank:b,bankNum:bn,
+ saldo:0,history:[]};
+ data.push(pl);
+ localStorage.players=JSON.stringify(data);
+ localStorage.current=JSON.stringify(pl);
+ location.reload();
+}
+
+function getPlayer(){return JSON.parse(localStorage.current||"null")}
+
+function updateCoin(){
  let p=getPlayer();
- if(p) document.getElementById("coin").innerText=p.saldo;
+ if(p) coinBox.innerText="💰 Coin: "+p.saldo;
 }
 
-function openDeposit(){    
- let p=getPlayer(); depAcc.innerText=p.wallet?p.wallet+" - "+p.walletNum:p.bank+" - "+p.bankNum;    
- depositModal.style.display="block";    
-}    
-function openWithdraw(){    
- let p=getPlayer(); wdAcc.innerText=p.wallet?p.wallet+" - "+p.walletNum:p.bank+" - "+p.bankNum;    
- withdrawModal.style.display="block";    
-}    
-function closeAll(){ depositModal.style.display=withdrawModal.style.display="none" }    
-    
-function submitDeposit(){    
- let amt=+depositAmount.value;    
- if(amt<10000) return alert("Minimal 10.000");    
- let p=getPlayer();    
- p.history.push("Deposit "+amt+" (Menunggu ACC)");    
- save(p);    
- alert("Menunggu ACC bandar");    
- closeAll();    
-}    
-    
-function submitWithdraw(){    
- let amt=+withdrawAmount.value;    
- if(amt<50000) return alert("Minimal 50.000");    
- let p=getPlayer();    
- p.history.push("Withdraw "+amt+" (Menunggu ACC)");    
- save(p);    
- alert("Menunggu ACC bandar");    
- closeAll();    
-}    
-    
-function showHistory(){    
- let p=getPlayer(); historyPanel.style.display="block";    
- historyList.innerHTML=p.history.map(h=>"<li>"+h+"</li>").join("");    
-}    
-    
-function showLeaderboard(){    
- let d=JSON.parse(localStorage.players||"[]");    
- leaderboardPanel.style.display="block";    
- leaderboardList.innerHTML=d    
- .sort((a,b)=>b.saldo-a.saldo)    
- .map(x=>"<li>"+x.username+" : "+x.saldo+"</li>").join("");    
-}    
-    
-function logoutPlayer(){ localStorage.removeItem("current"); location.reload() }    
-    
-function save(p){    
- let d=JSON.parse(localStorage.players);    
- d=d.map(x=>x.username===p.username?p:x);    
- localStorage.players=JSON.stringify(d);    
- localStorage.current=JSON.stringify(p);    
- syncCoin();    
-}    
-    
-window.onload=()=>{ 
- if(!getPlayer()) authModal.style.display="block";
- syncCoin();
- setInterval(syncCoin,2000); // update otomatis dari ACC bandar
-}    
-</script>    
-</body>    
-</html>
+function openDeposit(){
+ let p=getPlayer();
+ depAcc.innerText=p.wallet?p.wallet+" - "+p.walletNum:p.bank+" - "+p.bankNum;
+ depositModal.style.display="block";
+}
+function openWithdraw(){
+ let p=getPlayer();
+ wdAcc.innerText=p.wallet?p.wallet+" - "+p.walletNum:p.bank+" - "+p.bankNum;
+ withdrawModal.style.display="block";
+}
+function closeAll(){depositModal.style.display=withdrawModal.style.display="none"}
+
+function submitDeposit(){
+ let amt=+depositAmount.value;
+ if(amt<10000) return alert("Minimal 10.000");
+ let p=getPlayer();
+ p.history.push({type:"deposit",amount:amt,status:"pending",time:Date.now()});
+ save(p);
+ alert("Menunggu ACC bandar");
+ closeAll();
+}
+
+function submitWithdraw(){
+ let amt=+withdrawAmount.value;
+ if(amt<50000) return alert("Minimal 50.000");
+ let p=getPlayer();
+ p.history.push({type:"withdraw",amount:amt,status:"pending",time:Date.now()});
+ save(p);
+ alert("Menunggu ACC bandar");
+ closeAll();
+}
+
+function showHistory(){
+ let p=getPlayer();
+ historyPanel.style.display="block";
+ historyList.innerHTML=p.history.map(h=>{
+  if(typeof h==="string") return "<li>"+h+"</li>";
+  return `<li>${h.type} ${h.amount} (${h.status})</li>`;
+ }).join("");
+}
+
+function showLeaderboard(){
+ let d=JSON.parse(localStorage.players||"[]");
+ leaderboardPanel.style.display="block";
+ leaderboardList.innerHTML=d
+ .sort((a,b)=>b.saldo-a.saldo)
+ .map(x=>"<li>"+x.username+" : "+x.saldo+"</li>").join("");
+}
+
+function logoutPlayer(){localStorage.removeItem("current");location.reload()}
+
+function save(p){
+ let d=JSON.parse(localStorage.players);
+ d=d.map(x=>x.username===p.username?p:x);
+ localStorage.players=JSON.stringify(d);
+ localStorage.current=JSON.stringify(p);
+ updateCoin();
+}
+
+window.onload=()=>{
+ let p=getPlayer();
+ if(!p) authModal.style.display="block";
+ else updateCoin();
+}
+</script>
+
+</body>
+    </html>
