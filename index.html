@@ -11,25 +11,113 @@
 <link rel="stylesheet" href="css/animation.css">
 
 <style>
+
+/* ===== GLOBAL PREMIUM BG ===== */
+body{
+  background: radial-gradient(circle at top,#111,#000 60%);
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  color: gold;
+  margin:0;
+}
+
 /* ===== HEADER COIN ===== */
 #coinBox{
-  background:#111;
+  background:linear-gradient(145deg,#000,#222);
   color:gold;
-  padding:6px 12px;
+  padding:6px 14px;
   border-radius:20px;
   font-weight:bold;
-  box-shadow:0 0 10px gold;
+  box-shadow:0 0 10px gold, inset 0 0 8px rgba(255,215,0,.3);
+  animation: coinGlow 2s infinite alternate;
+}
+
+@keyframes coinGlow{
+  from{box-shadow:0 0 5px gold;}
+  to{box-shadow:0 0 18px gold;}
+}
+
+/* ===== HEADER ===== */
+.header{
+  backdrop-filter: blur(10px);
+  background: rgba(0,0,0,.7);
+  border-bottom:1px solid rgba(255,215,0,.2);
 }
 
 /* ===== MENU ICON ===== */
+.menu{
+  padding:10px;
+  display:flex;
+  gap:10px;
+  overflow-x:auto;
+}
+
 .menu button{
   display:flex;
   align-items:center;
   gap:6px;
+  background:linear-gradient(145deg,#111,#000);
+  border:1px solid rgba(255,215,0,.2);
+  color:gold;
+  padding:8px 14px;
+  border-radius:12px;
+  transition:.3s;
 }
+
+.menu button:hover{
+  transform:translateY(-3px);
+  box-shadow:0 0 15px gold;
+}
+
 .menu img{
   width:18px;
   height:18px;
+}
+
+/* ===== BANNER ===== */
+.banner{
+  padding:15px;
+}
+
+.banner-slider img{
+  width:100%;
+  border-radius:15px;
+  box-shadow:0 0 25px rgba(255,215,0,.3);
+  transition:transform .5s;
+}
+
+.banner-slider img:hover{
+  transform:scale(1.03);
+}
+
+/* ===== CONTENT CARD ===== */
+.content{
+  padding:15px;
+}
+
+.actions{
+  background: rgba(20,20,20,.7);
+  backdrop-filter: blur(10px);
+  padding:20px;
+  border-radius:20px;
+  border:1px solid rgba(255,215,0,.2);
+  box-shadow:0 0 25px rgba(255,215,0,.1);
+}
+
+/* ===== BUTTON PREMIUM ===== */
+.actions button{
+  background:linear-gradient(145deg,gold,#ffcc00);
+  color:black;
+  font-weight:bold;
+  padding:10px 18px;
+  border:none;
+  border-radius:12px;
+  margin:6px;
+  transition:.3s;
+}
+
+.actions button:hover{
+  transform:translateY(-2px);
+  box-shadow:0 0 15px gold;
 }
 
 /* ===== GOLD BLACK AUTH ===== */
@@ -37,30 +125,80 @@
   background:linear-gradient(145deg,#000,#1a1a1a);
   color:gold;
   box-shadow:0 0 25px gold;
+  border-radius:20px;
+  padding:20px;
 }
+
 #authModal input,#authModal select{
-  background:#000;color:gold;border:1px solid gold;
+  background:#000;
+  color:gold;
+  border:1px solid gold;
+  border-radius:10px;
+  padding:8px;
+  margin:5px 0;
 }
+
 #authModal button{
-  background:gold;color:#000;font-weight:bold;
+  background:gold;
+  color:#000;
+  font-weight:bold;
+  border-radius:12px;
+  padding:10px;
 }
 
 /* ===== MODAL ===== */
 .modal{
-  display:none;position:fixed;top:50%;left:50%;
-  transform:translate(-50%,-50%);
-  background:#111;color:gold;
-  padding:20px;border-radius:12px;
-  width:90%;max-width:400px;
+  display:none;
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%) scale(.9);
+  background:#111;
+  color:gold;
+  padding:20px;
+  border-radius:20px;
+  width:90%;
+  max-width:400px;
   z-index:1000;
-  box-shadow:0 0 20px gold;
+  box-shadow:0 0 25px gold;
+  animation: modalShow .3s forwards;
 }
-.panel{display:none;background:#111;color:gold;padding:10px;border-radius:10px}
-.modal button{margin:5px;padding:8px 14px;border-radius:8px;border:none;font-weight:bold}
+
+@keyframes modalShow{
+  to{
+    transform:translate(-50%,-50%) scale(1);
+  }
+}
+
+.panel{
+  display:none;
+  background:#111;
+  color:gold;
+  padding:15px;
+  border-radius:15px;
+  margin-top:15px;
+  border:1px solid rgba(255,215,0,.2);
+}
 
 /* ===== WA ===== */
-#waButton{position:fixed;bottom:20px;left:20px;width:60px;z-index:1000}
-#waButton img{width:100%}
+#waButton{
+  position:fixed;
+  bottom:20px;
+  left:20px;
+  width:60px;
+  z-index:1000;
+  filter: drop-shadow(0 0 10px gold);
+  transition:.3s;
+}
+
+#waButton:hover{
+  transform:scale(1.1);
+}
+
+#waButton img{
+  width:100%;
+}
+
 </style>
 </head>
 
@@ -254,6 +392,16 @@ window.onload=()=>{
  if(!p) authModal.style.display="block";
  else updateCoin();
 }
+
+/* AUTO SLIDE BANNER */
+let slideIndex=0;
+setInterval(()=>{
+  let slides=document.querySelectorAll(".banner-slider img");
+  slides.forEach(s=>s.style.display="none");
+  slideIndex++;
+  if(slideIndex>slides.length) slideIndex=1;
+  slides[slideIndex-1].style.display="block";
+},3000);
 </script>
 
 </body>
