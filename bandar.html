@@ -9,22 +9,11 @@
 body{
   background:#000;
   color:gold;
-  font-family:Arial;
+  font-family:Arial, sans-serif;
   margin:0;
   padding:15px;
 }
 h2{text-align:center}
-
-input,button{
-  padding:8px;
-  margin:5px 0;
-  border-radius:6px;
-  border:none;
-}
-button{font-weight:bold;cursor:pointer}
-.acc{background:lime;color:#000}
-.tolak{background:red;color:#fff}
-.logout{background:orange}
 
 .box{
   background:#111;
@@ -34,106 +23,106 @@ button{font-weight:bold;cursor:pointer}
   margin-bottom:15px;
 }
 
-.hidden{display:none}
+button{
+  padding:6px 12px;
+  margin:4px;
+  border:none;
+  border-radius:6px;
+  font-weight:bold;
+  cursor:pointer;
+}
+.acc{background:lime;color:#000}
+.tolak{background:red;color:#fff}
+.refresh{background:gold;color:#000}
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
-<div id="loginBox" class="box">
-  <h2>🔐 LOGIN BANDAR</h2>
-  <input type="password" id="adminPass" placeholder="Password Bandar">
-  <button onclick="login()">Masuk</button>
-</div>
+<h2>📊 PANEL BANDAR (TANPA LOGIN)</h2>
+<button class="refresh" onclick="loadPlayers()">🔄 Refresh Data</button>
+<br><br>
 
-<!-- PANEL -->
-<div id="panel" class="hidden">
-  <h2>📊 PANEL BANDAR</h2>
-  <button class="logout" onclick="logout()">Logout</button>
-  <div id="playerList"></div>
-</div>
+<div id="playerList"></div>
 
 <script>
-const DEFAULT_PASS="bandar123";
-
-function login(){
- let saved=localStorage.adminPass||DEFAULT_PASS;
- if(adminPass.value!==saved) return alert("Password salah");
- localStorage.adminLogin=1;
- location.reload();
-}
-
-function logout(){
- localStorage.removeItem("adminLogin");
- location.reload();
-}
-
 function loadPlayers(){
- let data=JSON.parse(localStorage.players||"[]");
- playerList.innerHTML="";
- data.forEach(p=>{
-  let box=document.createElement("div");
-  box.className="box";
+  let data = JSON.parse(localStorage.players || "[]");
+  playerList.innerHTML = "";
 
-  let acc=p.wallet?p.wallet+" "+p.walletNum:p.bank+" "+p.bankNum;
+  if(data.length === 0){
+    playerList.innerHTML = "<p>Tidak ada pemain</p>";
+    return;
+  }
 
-  box.innerHTML=`
-   <b>Username:</b> ${p.username}<br>
-   <b>Nama Rekening:</b> ${p.name}<br>
-   <b>Rekening:</b> ${acc}<br>
-   <b>Saldo:</b> ${p.saldo}<br><br>
-   <b>Transaksi:</b>
-   <ul>
-     ${p.history.map((h,i)=>`
-       <li>
-        ${h.type.toUpperCase()} - ${h.amount} (${h.status})
-        ${h.status==="pending"?`
-         <br>
-         <button class="acc" onclick="acc('${p.username}',${i})">ACC</button>
-         <button class="tolak" onclick="tolak('${p.username}',${i})">TOLAK</button>
-        `:""}
-       </li>
-     `).join("")}
-   </ul>
-  `;
-  playerList.appendChild(box);
- });
+  data.forEach(p=>{
+    let box = document.createElement("div");
+    box.className = "box";
+
+    let rekening = p.wallet
+      ? `${p.wallet} - ${p.walletNum}`
+      : `${p.bank} - ${p.bankNum}`;
+
+    let transaksi = "";
+    p.history.forEach((h,i)=>{
+      if(typeof h === "string"){
+        transaksi += `<li>${h}</li>`;
+      }else{
+        transaksi += `
+          <li>
+            ${h.type.toUpperCase()} ${h.amount} (${h.status})
+            ${h.status==="pending" ? `
+              <br>
+              <button class="acc" onclick="acc('${p.username}',${i})">ACC</button>
+              <button class="tolak" onclick="tolak('${p.username}',${i})">TOLAK</button>
+            ` : ""}
+          </li>
+        `;
+      }
+    });
+
+    box.innerHTML = `
+      <b>Username:</b> ${p.username}<br>
+      <b>Nama Rekening:</b> ${p.name}<br>
+      <b>Rekening:</b> ${rekening}<br>
+      <b>Saldo:</b> ${p.saldo}<br><br>
+      <b>Histori Transaksi:</b>
+      <ul>${transaksi}</ul>
+    `;
+    playerList.appendChild(box);
+  });
 }
 
-function acc(user,i){
- let d=JSON.parse(localStorage.players);
- let p=d.find(x=>x.username===user);
- let h=p.history[i];
+function acc(username,index){
+  let data = JSON.parse(localStorage.players);
+  let p = data.find(x=>x.username===username);
+  let h = p.history[index];
 
- if(h.type==="deposit") p.saldo+=h.amount;
- if(h.type==="withdraw") p.saldo-=h.amount;
+  if(typeof h === "string"){
+    alert("Histori lama tidak bisa di-ACC");
+    return;
+  }
 
- h.status="acc";
- save(d);
+  if(h.type==="deposit") p.saldo += h.amount;
+  if(h.type==="withdraw") p.saldo -= h.amount;
+
+  h.status = "acc";
+  save(data);
 }
 
-function tolak(user,i){
- let d=JSON.parse(localStorage.players);
- let p=d.find(x=>x.username===user);
- p.history[i].status="tolak";
- save(d);
+function tolak(username,index){
+  let data = JSON.parse(localStorage.players);
+  let p = data.find(x=>x.username===username);
+  p.history[index].status = "tolak";
+  save(data);
 }
 
-function save(d){
- localStorage.players=JSON.stringify(d);
- loadPlayers();
-}
-
-window.onload=()=>{
- if(localStorage.adminLogin){
-  loginBox.style.display="none";
-  panel.classList.remove("hidden");
+function save(data){
+  localStorage.players = JSON.stringify(data);
   loadPlayers();
- }else{
-  loginBox.style.display="block";
- }
 }
+
+window.onload = loadPlayers;
 </script>
 
 </body>
