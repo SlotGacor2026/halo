@@ -256,6 +256,66 @@ function logoutPlayer(){
  location.reload();
 }
 
+  function kirimDeposit() {
+  const username = document.getElementById("username").value;
+  const namaRek  = document.getElementById("nama").value;
+  const nomor    = document.getElementById("rekening").value;
+  const jumlah   = Number(document.getElementById("jumlah").value);
+  const jenis    = document.getElementById("jenisRekening").value;
+  const provider = document.getElementById("providerRekening").value;
+
+  if (!jenis || !provider) {
+    alert("Lengkapi jenis & provider rekening");
+    return;
+  }
+
+  const data = JSON.parse(localStorage.getItem("pemainData")) || [];
+
+  data.push({
+    username: username,
+    jenis: jenis,                 // E-Wallet / Bank
+    provider: provider,           // Dana / Gopay / BCA / dll
+    nama: namaRek,
+    rekening: nomor,
+    tipe: "DEPOSIT",
+    jumlah: jumlah,
+    status: "pending"
+  });
+
+  localStorage.setItem("pemainData", JSON.stringify(data));
+  alert("Deposit dikirim BOLOTOK");
+   }
+
+  function kirimDeposit() {
+  const username = document.getElementById("username").value;
+  const namaRek  = document.getElementById("nama").value;
+  const nomor    = document.getElementById("rekening").value;
+  const jumlah   = Number(document.getElementById("jumlah").value);
+  const jenis    = document.getElementById("jenisRekening").value;
+  const provider = document.getElementById("providerRekening").value;
+
+  if (!jenis || !provider) {
+    alert("Lengkapi jenis & provider rekening");
+    return;
+  }
+
+  const data = JSON.parse(localStorage.getItem("pemainData")) || [];
+
+  data.push({
+    username: username,
+    jenis: jenis,                 // E-Wallet / Bank
+    provider: provider,           // Dana / Gopay / BCA / dll
+    nama: namaRek,
+    rekening: nomor,
+    tipe: "WITHDRAW",
+    jumlah: jumlah,
+    status: "pending"
+  });
+
+  localStorage.setItem("pemainData", JSON.stringify(data));
+  alert("Withdraw dikirim BOLOTOK");
+    }
+
 window.onload=()=>{
  let p=getPlayer();
  if(!p) authModal.style.display="block";
