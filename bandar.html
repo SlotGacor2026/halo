@@ -3,65 +3,78 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BANDAR PANEL</title>
-
+<title>Bandar Panel</title>
 <style>
-body{
+body {
+  font-family: Arial, sans-serif;
   background:#000;
-  color:gold;
-  font-family:Arial;
+  color:#ffd700;
+  margin:0;
+}
+.container {
+  max-width:1000px;
+  margin:auto;
   padding:20px;
 }
-h2{text-align:center}
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:20px;
-}
-th,td{
-  border:1px solid gold;
-  padding:8px;
-  text-align:center;
-}
-th{background:#111}
-button{
-  background:gold;
-  border:none;
-  padding:6px 10px;
-  font-weight:bold;
-  cursor:pointer;
-}
-.login{
-  max-width:300px;
-  margin:auto;
+.box {
   background:#111;
   padding:20px;
   border-radius:10px;
+  box-shadow:0 0 15px #000;
 }
-input{
+h2 { text-align:center; }
+input, select, button {
   width:100%;
-  padding:8px;
-  margin:6px 0;
-  background:#000;
-  color:gold;
-  border:1px solid gold;
+  padding:10px;
+  margin:5px 0;
+  border-radius:5px;
+  border:none;
 }
-.hidden{display:none}
+button {
+  background:#ffd700;
+  font-weight:bold;
+  cursor:pointer;
+}
+table {
+  width:100%;
+  border-collapse:collapse;
+  margin-top:15px;
+}
+th, td {
+  border:1px solid #444;
+  padding:8px;
+  text-align:center;
+}
+th { background:#222; }
+.status-btn {
+  padding:5px 10px;
+  background:#0f0;
+  border:none;
+  cursor:pointer;
+}
+.logout {
+  background:#f00;
+  color:#fff;
+  margin-top:10px;
+}
+.hidden { display:none; }
 </style>
 </head>
 
 <body>
+<div class="container">
 
-<div id="loginBox" class="login">
+<!-- LOGIN -->
+<div id="loginBox" class="box">
   <h2>LOGIN BANDAR</h2>
-  <input id="bdUser" placeholder="Username bandar">
-  <input id="bdPass" type="password" placeholder="Password">
-  <button onclick="loginBandar()">Login</button>
+  <input id="user" placeholder="Username">
+  <input id="pass" type="password" placeholder="Password">
+  <button onclick="login()">Login</button>
 </div>
 
-<div id="panel" class="hidden">
-  <h2>PANEL BANDAR</h2>
-  <p id="roleInfo"></p>
+<!-- PANEL -->
+<div id="panelBox" class="box hidden">
+  <h2>CONTROL BANDAR</h2>
 
   <table>
     <thead>
@@ -70,85 +83,108 @@ input{
         <th>Jenis Rekening</th>
         <th>Nama Rekening</th>
         <th>Nomor Rekening</th>
-        <th>Transaksi</th>
-        <th>Nominal</th>
+        <th>Deposit / Withdraw</th>
         <th>Status</th>
       </tr>
     </thead>
-    <tbody id="dataRows"></tbody>
+    <tbody id="dataPemain"></tbody>
   </table>
+
+  <button class="logout" onclick="logout()">Logout</button>
+</div>
+
 </div>
 
 <script>
-// =====================
-// DATA BANDAR
-// =====================
-const bandars = [
- {user:"admin1", pass:"12345", role:"ACC_ONLY"},
- {user:"admin2", pass:"67890", role:"VIEW_ONLY"}
-];
+/* ======================
+   LOGIN DATA (FIX)
+====================== */
+const BANDAR_USER = "bandar1";
+const BANDAR_PASS = "bandar123";
 
-let currentBandar=null;
-
-// =====================
-// LOGIN
-// =====================
-function loginBandar(){
- const u=bdUser.value,p=bdPass.value;
- const b=bandars.find(x=>x.user===u && x.pass===p);
- if(!b) return alert("Login gagal");
- currentBandar=b;
- loginBox.classList.add("hidden");
- panel.classList.remove("hidden");
- roleInfo.innerText="Role: "+b.role;
- loadData();
+/* ======================
+   INIT DATA PEMAIN
+====================== */
+if (!localStorage.getItem("pemainData")) {
+  localStorage.setItem("pemainData", JSON.stringify([]));
 }
 
-// =====================
-// LOAD DATA
-// =====================
-function loadData(){
- const players=JSON.parse(localStorage.players||"[]");
- let rows="";
- players.forEach(pl=>{
-  pl.history.forEach((h,i)=>{
-   if(h.status==="PENDING"){
-    rows+=`
-    <tr>
-      <td>${pl.username}</td>
-      <td>${pl.wallet ? "E-Wallet ("+pl.wallet+")" : "Bank ("+pl.bank+")"}</td>
-      <td>${pl.name}</td>
-      <td>${pl.wallet ? pl.walletNum : pl.bankNum}</td>
-      <td>${h.type}</td>
-      <td>${h.amount}</td>
-      <td>
-        ${currentBandar.role==="ACC_ONLY"
-        ? `<button onclick="acc('${pl.username}',${i})">ACC</button>`
-        : 'VIEW'}
-      </td>
-    </tr>`;
-   }
+/* ======================
+   LOGIN
+====================== */
+function login() {
+  const u = user.value;
+  const p = pass.value;
+  if (u === BANDAR_USER && p === BANDAR_PASS) {
+    sessionStorage.setItem("loginBandar","true");
+    showPanel();
+  } else {
+    alert("Login gagal!");
+  }
+}
+
+function showPanel() {
+  loginBox.classList.add("hidden");
+  panelBox.classList.remove("hidden");
+  loadPemain();
+}
+
+if (sessionStorage.getItem("loginBandar")==="true") {
+  showPanel();
+}
+
+/* ======================
+   LOAD PEMAIN
+====================== */
+function loadPemain() {
+  const data = JSON.parse(localStorage.getItem("pemainData")) || [];
+  dataPemain.innerHTML = "";
+
+  data.forEach((p,i)=>{
+    if (p.status === "pending") {
+      dataPemain.innerHTML += `
+      <tr>
+        <td>${p.username}</td>
+        <td>${p.jenis}</td>
+        <td>${p.nama}</td>
+        <td>${p.rekening}</td>
+        <td>${p.tipe} (${p.jumlah})</td>
+        <td>
+          <button class="status-btn" onclick="acc(${i})">ACC</button>
+        </td>
+      </tr>`;
+    }
   });
- });
- dataRows.innerHTML=rows || "<tr><td colspan='7'>Tidak ada transaksi</td></tr>";
 }
 
-// =====================
-// ACC TRANSAKSI
-// =====================
-function acc(username,index){
- let players=JSON.parse(localStorage.players);
- let p=players.find(x=>x.username===username);
- let trx=p.history[index];
+/* ======================
+   ACC DEPO / WD
+====================== */
+function acc(i) {
+  const data = JSON.parse(localStorage.getItem("pemainData"));
+  const p = data[i];
 
- if(trx.type==="Deposit") p.saldo+=trx.amount;
- if(trx.type==="Withdraw") p.saldo-=trx.amount;
+  let saldo = Number(localStorage.getItem("saldo_"+p.username)) || 0;
 
- trx.status="ACC";
+  if (p.tipe === "DEPOSIT") saldo += p.jumlah;
+  if (p.tipe === "WITHDRAW") saldo -= p.jumlah;
 
- localStorage.players=JSON.stringify(players);
- alert("Transaksi di ACC & saldo update");
- loadData();
+  localStorage.setItem("saldo_"+p.username, saldo);
+
+  p.status = "done";
+  data[i] = p;
+  localStorage.setItem("pemainData", JSON.stringify(data));
+
+  alert("Transaksi di-ACC");
+  loadPemain();
+}
+
+/* ======================
+   LOGOUT
+====================== */
+function logout() {
+  sessionStorage.removeItem("loginBandar");
+  location.reload();
 }
 </script>
 
