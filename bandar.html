@@ -137,14 +137,14 @@ function renderTable(){
     const table = document.getElementById("transactionTable");
     table.innerHTML="";
 
-    transactions.forEach((t,index)=>{
+    pemainData.forEach((t,index)=>{
         table.innerHTML+=`
         <tr>
         <td>${t.username}</td>
-        <td>${t.jenis}</td>
+        <td>${t.jenis} - ${t.provider}</td>
         <td>${t.nama}</td>
-        <td>${t.nomor}</td>
-        <td>${t.amount}</td>
+        <td>${t.rekening}</td>
+        <td>${t.tipe} - Rp ${t.jumlah}</td>
         <td>${t.status}</td>
         <td>
         <button class="approve" onclick="approve(${index})">Approve</button>
@@ -159,25 +159,29 @@ renderTable();
 
 /* ===== APPROVE ===== */
 function approve(i){
-    transactions[i].status="Approved";
+    pemainData[i].status="approved";
 
-    if(transactions[i].type==="deposit"){
-        let bal = parseInt(localStorage.getItem("playerBalance")) || 0;
-        bal += parseInt(transactions[i].amount);
-        localStorage.setItem("playerBalance", bal);
+    let saldo = parseInt(localStorage.getItem("playerBalance")) || 0;
+
+    if(pemainData[i].tipe==="DEPOSIT"){
+        saldo += parseInt(pemainData[i].jumlah);
     }
 
-    localStorage.setItem("transactions", JSON.stringify(transactions));
+    if(pemainData[i].tipe==="WITHDRAW"){
+        saldo -= parseInt(pemainData[i].jumlah);
+    }
+
+    localStorage.setItem("playerBalance", saldo);
+    localStorage.setItem("pemainData", JSON.stringify(pemainData));
     renderTable();
 }
 
 /* ===== REJECT ===== */
 function reject(i){
-    transactions[i].status="Rejected";
-    localStorage.setItem("transactions", JSON.stringify(transactions));
+    pemainData[i].status="rejected";
+    localStorage.setItem("pemainData", JSON.stringify(pemainData));
     renderTable();
 }
-
 /* ===== SAVE SETTINGS ===== */
 function saveSettings(){
     settings = {
