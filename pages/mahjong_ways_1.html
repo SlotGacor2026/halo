@@ -1,57 +1,301 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mahjong Ways 1</title>
-<link rel="stylesheet" href="../css/base.css">
-<link rel="stylesheet" href="../css/games.css">
-<link rel="stylesheet" href="../css/animation.css">
+
+<style>
+body{
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:#1c1c1c;
+    color:white;
+    text-align:center;
+}
+
+/* ===== TOP BAR ===== */
+.top-bar{
+    display:flex;
+    justify-content:space-between;
+    padding:10px 15px;
+    background:#2a2a2a;
+    font-size:14px;
+}
+
+.multiplier{
+    font-size:12px;
+    color:gold;
+}
+
+/* ===== GAME GRID ===== */
+.game-area{
+    margin-top:15px;
+}
+
+.reels{
+    display:grid;
+    grid-template-columns:repeat(5, 70px);
+    grid-template-rows:repeat(4, 70px);
+    gap:5px;
+    justify-content:center;
+}
+
+.symbol{
+    width:70px;
+    height:70px;
+    background:#eee;
+    border-radius:8px;
+    overflow:hidden;
+    transition:0.2s;
+}
+
+.symbol img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+/* ===== CONTROLS ===== */
+.controls{
+    margin-top:20px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+}
+
+.btn{
+    padding:10px 15px;
+    background:#444;
+    color:white;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+.spin-btn{
+    width:70px;
+    height:70px;
+    border-radius:50%;
+    background:green;
+    font-weight:bold;
+}
+
+.auto-menu{
+    position:absolute;
+    bottom:100px;
+    right:10px;
+    background:#333;
+    padding:10px;
+    display:none;
+    flex-direction:column;
+    gap:5px;
+}
+
+.auto-menu button{
+    padding:5px;
+    background:#555;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+</style>
 </head>
 <body>
-<h2>Mahjong Ways 1</h2>
 
-<div id="reel" class="game-grid">
-  <img src="../assets/thumbnails/mahjong_ways_1.png" class="game-card spin-glow">
-  <img src="../assets/thumbnails/mahjong_ways_1.png" class="game-card spin-glow">
-  <img src="../assets/thumbnails/mahjong_ways_1.png" class="game-card spin-glow">
+<div class="top-bar">
+    <div>Saldo: Rp <span id="balance">0</span></div>
+    <div>
+        Bet: Rp <span id="bet">100</span>
+        <span class="multiplier"> x<span id="multiplier">1</span></span>
+    </div>
+    <div>Win: Rp <span id="win">0</span></div>
 </div>
 
-<div style="text-align:center; margin-top:20px;">
-  <button onclick="spin()" class="btn-press">Spin</button>
-  <button onclick="autoplay()" class="btn-press">Autoplay</button>
+<div class="game-area">
+    <div class="reels" id="reels"></div>
+</div>
+
+<div class="auto-menu" id="autoMenu">
+    <button onclick="startAuto(10)">10</button>
+    <button onclick="startAuto(30)">30</button>
+    <button onclick="startAuto(100)">100</button>
+    <button onclick="startAuto(1000)">1000</button>
+</div>
+
+<div class="controls">
+    <button class="btn" onclick="toggleTurbo()" id="turboBtn">Turbo OFF</button>
+    <button class="btn" onclick="changeBet(-10)">-</button>
+    <button class="spin-btn" onclick="spin()">SPIN</button>
+    <button class="btn" onclick="changeBet(10)">+</button>
+    <button class="btn" onclick="toggleAuto()">AUTO</button>
 </div>
 
 <script>
-let autoplayInterval;
+let settings = JSON.parse(localStorage.getItem("gameSettings")) || {
+    rtp:80,
+    winrate:40,
+    maxwin:5,
+    freespin:true
+};
+  
+/* ===== LOAD SALDO DARI MENU ===== */
+let balance = localStorage.getItem("playerBalance") 
+    ? parseInt(localStorage.getItem("playerBalance")) 
+    : 10000;
 
-function spin(){
-  const reels=document.querySelectorAll("#reel img");
-  reels.forEach((r,index)=>{
-    r.style.transition="transform 1s ease-in-out";
-    r.style.transform=`translateY(${Math.random()*200}px)`;
-    setTimeout(()=>r.style.transform="translateY(0)",1000+index*100);
-  });
+let bet = 100;
+let win = 0;
+let turbo = false;
+let autoSpins = 0;
+let multiplier = 1;
+let freeSpins = 0;
 
-  // Scatter glow effect
-  reels.forEach(r=>{
-    r.classList.add("gold-pulse");
-    setTimeout(()=>r.classList.remove("gold-pulse"),1200);
-  });
+const reels = document.getElementById("reels");
 
-  // Big Win random
-  if(Math.random()<0.4){
-    const win=document.createElement("div");
-    win.className="big-win"; win.textContent="BIG WIN!";
-    document.body.appendChild(win);
-    setTimeout(()=>win.remove(),1500);
+document.getElementById("balance").innerText = balance;
+
+/* ===== SYMBOLS ===== */
+const symbols = [
+    {name:"A", img:"../assets/A.png", value:2},
+    {name:"B", img:"../assets/B.png", value:4},
+    {name:"C", img:"../assets/C.png", value:6},
+    {name:"D", img:"../assets/D.png", value:8},
+    {name:"WILD", img:"../assets/wild.png", value:10},
+    {name:"SCATTER", img:"../assets/scatter.png", value:0}
+];
+
+let grid = [];
+
+/* ===== CREATE GRID ===== */
+function createGrid(){
+    reels.innerHTML="";
+    grid = [];
+    for(let i=0;i<20;i++){
+        let rand = symbols[Math.floor(Math.random()*symbols.length)];
+        grid.push(rand);
+
+        let div = document.createElement("div");
+        div.classList.add("symbol");
+
+        let img = document.createElement("img");
+        img.src = rand.img;
+
+        div.appendChild(img);
+        reels.appendChild(div);
+    }
+}
+
+/* ===== CHECK WIN (SIMPLE 1024 STYLE) ===== */
+/* ===== CHECK WIN (CONTROLLED BY BANDAR) ===== */
+function checkWin(){
+
+    let totalWin = 0;
+    let scatterCount = 0;
+
+    // hitung scatter
+    grid.forEach(s=>{
+        if(s.name==="SCATTER") scatterCount++;
+    });
+
+    // FREE SPIN hanya jika diaktifkan bandar
+    if(scatterCount >= 3 && settings.freespin){
+        freeSpins += 10;
+        alert("FREE SPIN 10x!");
+    }
+
+    // tentukan apakah menang berdasarkan winrate
+    let chance = Math.random() * 100;
+
+    if(chance <= settings.winrate){
+
+        // multiplier dibatasi bandar
+        let maxMulti = parseInt(settings.maxwin);
+        multiplier = Math.floor(Math.random() * maxMulti) + 1;
+
+        totalWin = bet * multiplier;
+
+        // batasi berdasarkan RTP
+        let rtpLimit = (settings.rtp / 100) * bet;
+
+        if(totalWin > rtpLimit){
+            totalWin = rtpLimit;
+        }
+    }
+
+    return Math.floor(totalWin);
   }
+
+/* ===== TUMBLE EFFECT ===== */
+function tumble(){
+    multiplier++;
+    if(multiplier>5) multiplier=5;
+    document.getElementById("multiplier").innerText = multiplier;
+    createGrid();
 }
 
-function autoplay(){
-  if(autoplayInterval){ clearInterval(autoplayInterval); autoplayInterval=null; }
-  else autoplayInterval=setInterval(spin,2000);
+/* ===== SPIN ===== */
+function spin(){
+    if(balance < bet && freeSpins<=0) return alert("Saldo tidak cukup!");
+
+    if(freeSpins<=0){
+        balance -= bet;
+    }else{
+        freeSpins--;
+    }
+
+    multiplier=1;
+    document.getElementById("multiplier").innerText=multiplier;
+
+    createGrid();
+
+    setTimeout(()=>{
+        win = checkWin();
+
+        if(win>0){
+            balance += win;
+            tumble();
+        }
+
+        document.getElementById("balance").innerText=balance;
+        document.getElementById("win").innerText=win;
+
+        localStorage.setItem("playerBalance", balance);
+
+        if(autoSpins>0){
+            autoSpins--;
+            setTimeout(spin, turbo?200:800);
+        }
+
+    }, turbo?200:800);
 }
+
+/* ===== CONTROLS ===== */
+function changeBet(val){
+    bet+=val;
+    if(bet<10) bet=10;
+    document.getElementById("bet").innerText=bet;
+}
+
+function toggleTurbo(){
+    turbo=!turbo;
+    document.getElementById("turboBtn").innerText= turbo?"Turbo ON":"Turbo OFF";
+}
+
+function toggleAuto(){
+    const m=document.getElementById("autoMenu");
+    m.style.display= m.style.display==="flex"?"none":"flex";
+}
+
+function startAuto(num){
+    autoSpins=num;
+    document.getElementById("autoMenu").style.display="none";
+    spin();
+}
+
+createGrid();
 </script>
+
 </body>
 </html>
