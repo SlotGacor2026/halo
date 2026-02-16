@@ -148,13 +148,68 @@ function renderTable(){
         <td>${t.tipe} - Rp ${t.jumlah}</td>
         <td>${t.status}</td>
         <td>
-        <button onclick="approve(${index})">Approve</button>
-        <button onclick="reject(${index})">Reject</button>
+        <button class="approve" onclick="approve(${index})">Approve</button>
+        <button class="reject" onclick="reject(${index})">Reject</button>
         </td>
         </tr>
         `;
     });
+}
+
+function approve(i){
+    let pemainData = JSON.parse(localStorage.getItem("pemainData")) || [];
+    let players = JSON.parse(localStorage.getItem("players")) || [];
+
+    let trx = pemainData[i];
+
+    if(trx.status !== "pending"){
+        alert("Sudah diproses!");
+        return;
     }
+
+    // Cari player berdasarkan username
+    let player = players.find(p=>p.username === trx.username);
+    if(!player){
+        alert("Player tidak ditemukan");
+        return;
+    }
+
+    if(trx.tipe === "DEPOSIT"){
+        player.saldo += parseInt(trx.jumlah);
+    }
+
+    if(trx.tipe === "WITHDRAW"){
+        if(player.saldo < trx.jumlah){
+            alert("Saldo player tidak cukup!");
+            return;
+        }
+        player.saldo -= parseInt(trx.jumlah);
+    }
+
+    trx.status = "approved";
+
+    localStorage.setItem("players", JSON.stringify(players));
+    localStorage.setItem("pemainData", JSON.stringify(pemainData));
+
+    alert("Transaksi di approve!");
+    renderTable();
+}
+
+function reject(i){
+    let pemainData = JSON.parse(localStorage.getItem("pemainData")) || [];
+
+    if(pemainData[i].status !== "pending"){
+        alert("Sudah diproses!");
+        return;
+    }
+
+    pemainData[i].status = "rejected";
+
+    localStorage.setItem("pemainData", JSON.stringify(pemainData));
+
+    alert("Transaksi di reject!");
+    renderTable();
+}
 
 renderTable();
 
