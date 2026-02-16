@@ -134,6 +134,7 @@ document.getElementById("maxwin").value=settings.maxwin;
 document.getElementById("freespin").checked=settings.freespin;
 
 function renderTable(){
+    let pemainData = JSON.parse(localStorage.getItem("pemainData")) || [];
     const table = document.getElementById("transactionTable");
     table.innerHTML="";
 
@@ -147,13 +148,13 @@ function renderTable(){
         <td>${t.tipe} - Rp ${t.jumlah}</td>
         <td>${t.status}</td>
         <td>
-        <button class="approve" onclick="approve(${index})">Approve</button>
-        <button class="reject" onclick="reject(${index})">Reject</button>
+        <button onclick="approve(${index})">Approve</button>
+        <button onclick="reject(${index})">Reject</button>
         </td>
         </tr>
         `;
     });
-}
+    }
 
 renderTable();
 
