@@ -57,12 +57,12 @@
 </header>
 
 <nav class="menu">
-  <button>Slot</button>
-  <button>Casino</button>
-  <button>Togel</button>
-  <button>Arcade</button>
-  <button>Poker</button>
-  <button>Developer</button>
+  <button onclick="goPage('slot.html')">Slot</button>
+  <button onclick="goPage('casino.html')">Casino</button>
+  <button onclick="goPage('togel.html')">Togel</button>
+  <button onclick="goPage('arcade.html')">Arcade</button>
+  <button onclick="goPage('poker.html')">Poker</button>
+  <button onclick="goPage('developer.html')">Developer</button>
 </nav>
 
 <section class="banner">
@@ -320,6 +320,10 @@ window.onload=()=>{
  let p=getPlayer();
  if(!p) authModal.style.display="block";
  else updateSaldo();
+}
+
+function goPage(page){
+  window.location.href = "pages/" + page;
 }
 </script>
 </body>
