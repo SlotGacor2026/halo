@@ -3,188 +3,208 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bandar Panel</title>
+<title>CONTROL BANDAR</title>
+
 <style>
-body {
-  font-family: Arial, sans-serif;
-  background:#000;
-  color:#ffd700;
-  margin:0;
+body{
+    margin:0;
+    font-family:Arial;
+    background:black;
+    color:white;
 }
-.container {
-  max-width:1000px;
-  margin:auto;
-  padding:20px;
+
+.container{
+    width:95%;
+    max-width:1100px;
+    margin:auto;
+    margin-top:40px;
+    background:#111;
+    padding:20px;
+    border-radius:10px;
 }
-.box {
-  background:#111;
-  padding:20px;
-  border-radius:10px;
-  box-shadow:0 0 15px #000;
+
+h2{
+    text-align:center;
+    color:gold;
 }
-h2 { text-align:center; }
-input, select, button {
-  width:100%;
-  padding:10px;
-  margin:5px 0;
-  border-radius:5px;
-  border:none;
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
 }
-button {
-  background:#ffd700;
-  font-weight:bold;
-  cursor:pointer;
+
+th,td{
+    border:1px solid #333;
+    padding:8px;
+    text-align:center;
 }
-table {
-  width:100%;
-  border-collapse:collapse;
-  margin-top:15px;
+
+th{
+    background:#222;
+    color:gold;
 }
-th, td {
-  border:1px solid #444;
-  padding:8px;
-  text-align:center;
+
+button{
+    padding:5px 10px;
+    border:none;
+    cursor:pointer;
+    border-radius:4px;
 }
-th { background:#222; }
-.status-btn {
-  padding:5px 10px;
-  background:#0f0;
-  border:none;
-  cursor:pointer;
+
+.approve{background:green;color:white;}
+.reject{background:red;color:white;}
+
+.control-box{
+    margin-top:30px;
+    background:#222;
+    padding:15px;
+    border-radius:8px;
 }
-.logout {
-  background:#f00;
-  color:#fff;
-  margin-top:10px;
+
+input{
+    padding:5px;
+    margin:5px;
 }
-.hidden { display:none; }
+.logout{
+    margin-top:20px;
+    background:red;
+    color:white;
+    width:100%;
+    padding:10px;
+}
 </style>
 </head>
-
 <body>
+
 <div class="container">
 
-<!-- LOGIN -->
-<div id="loginBox" class="box">
-  <h2>LOGIN BANDAR</h2>
-  <input id="user" placeholder="Username">
-  <input id="pass" type="password" placeholder="Password">
-  <button onclick="login()">Login</button>
+<h2>CONTROL BANDAR</h2>
+
+<table>
+<thead>
+<tr>
+<th>Username</th>
+<th>Jenis Rekening</th>
+<th>Nama Rekening</th>
+<th>Nomor Rekening</th>
+<th>Deposit / Withdraw</th>
+<th>Status</th>
+<th>Aksi</th>
+</tr>
+</thead>
+<tbody id="transactionTable">
+</tbody>
+</table>
+
+<div class="control-box">
+<h3>Kontrol Permainan</h3>
+
+RTP % <input type="number" id="rtp" value="80">
+Win Rate % <input type="number" id="winrate" value="40">
+Max Multiplier <input type="number" id="maxwin" value="5">
+<label><input type="checkbox" id="freespin" checked> Free Spin Aktif</label>
+<br>
+<button onclick="saveSettings()">Simpan Pengaturan</button>
+
+<h3>Tambah / Kurangi Saldo Player</h3>
+Username <input type="text" id="userTarget">
+Jumlah <input type="number" id="saldoEdit">
+<button onclick="editSaldo()">Update</button>
+
 </div>
 
-<!-- PANEL -->
-<div id="panelBox" class="box hidden">
-  <h2>CONTROL BANDAR</h2>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Username</th>
-        <th>Jenis Rekening</th>
-        <th>Nama Rekening</th>
-        <th>Nomor Rekening</th>
-        <th>Deposit / Withdraw</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody id="dataPemain"></tbody>
-  </table>
-
-  <button class="logout" onclick="logout()">Logout</button>
-</div>
+<button class="logout" onclick="logout()">Logout</button>
 
 </div>
 
 <script>
-/* ======================
-   LOGIN DATA (FIX)
-====================== */
-const BANDAR_USER = "bandar1";
-const BANDAR_PASS = "bandar123";
+/* ===== LOAD TRANSAKSI ===== */
+let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
+let settings = JSON.parse(localStorage.getItem("gameSettings")) || {
+    rtp:80,
+    winrate:40,
+    maxwin:5,
+    freespin:true
+};
 
-/* ======================
-   INIT DATA PEMAIN
-====================== */
-if (!localStorage.getItem("pemainData")) {
-  localStorage.setItem("pemainData", JSON.stringify([]));
-}
+document.getElementById("rtp").value=settings.rtp;
+document.getElementById("winrate").value=settings.winrate;
+document.getElementById("maxwin").value=settings.maxwin;
+document.getElementById("freespin").checked=settings.freespin;
 
-/* ======================
-   LOGIN
-====================== */
-function login() {
-  const u = user.value;
-  const p = pass.value;
-  if (u === BANDAR_USER && p === BANDAR_PASS) {
-    sessionStorage.setItem("loginBandar","true");
-    showPanel();
-  } else {
-    alert("Login gagal!");
-  }
-}
+function renderTable(){
+    const table = document.getElementById("transactionTable");
+    table.innerHTML="";
 
-function showPanel() {
-  loginBox.classList.add("hidden");
-  panelBox.classList.remove("hidden");
-  loadPemain();
-}
-
-if (sessionStorage.getItem("loginBandar")==="true") {
-  showPanel();
-}
-
-/* ======================
-   LOAD PEMAIN
-====================== */
-function loadPemain() {
-  const data = JSON.parse(localStorage.getItem("pemainData")) || [];
-  dataPemain.innerHTML = "";
-
-  data.forEach((p,i)=>{
-    if (p.status === "pending") {
-      dataPemain.innerHTML += `
-      <tr>
-        <td>${p.username}</td>
-        <td>${p.jenis}</td>
-        <td>${p.nama}</td>
-        <td>${p.rekening}</td>
-        <td>${p.tipe} (${p.jumlah})</td>
+    transactions.forEach((t,index)=>{
+        table.innerHTML+=`
+        <tr>
+        <td>${t.username}</td>
+        <td>${t.jenis}</td>
+        <td>${t.nama}</td>
+        <td>${t.nomor}</td>
+        <td>${t.amount}</td>
+        <td>${t.status}</td>
         <td>
-          <button class="status-btn" onclick="acc(${i})">ACC</button>
+        <button class="approve" onclick="approve(${index})">Approve</button>
+        <button class="reject" onclick="reject(${index})">Reject</button>
         </td>
-      </tr>`;
+        </tr>
+        `;
+    });
+}
+
+renderTable();
+
+/* ===== APPROVE ===== */
+function approve(i){
+    transactions[i].status="Approved";
+
+    if(transactions[i].type==="deposit"){
+        let bal = parseInt(localStorage.getItem("playerBalance")) || 0;
+        bal += parseInt(transactions[i].amount);
+        localStorage.setItem("playerBalance", bal);
     }
-  });
+
+    localStorage.setItem("transactions", JSON.stringify(transactions));
+    renderTable();
 }
 
-/* ======================
-   ACC DEPO / WD
-====================== */
-function acc(i) {
-  const data = JSON.parse(localStorage.getItem("pemainData"));
-  const p = data[i];
-
-  let saldo = Number(localStorage.getItem("saldo_"+p.username)) || 0;
-
-  if (p.tipe === "DEPOSIT") saldo += p.jumlah;
-  if (p.tipe === "WITHDRAW") saldo -= p.jumlah;
-
-  localStorage.setItem("saldo_"+p.username, saldo);
-
-  p.status = "done";
-  data[i] = p;
-  localStorage.setItem("pemainData", JSON.stringify(data));
-
-  alert("Transaksi di-ACC");
-  loadPemain();
+/* ===== REJECT ===== */
+function reject(i){
+    transactions[i].status="Rejected";
+    localStorage.setItem("transactions", JSON.stringify(transactions));
+    renderTable();
 }
 
-/* ======================
-   LOGOUT
-====================== */
-function logout() {
-  sessionStorage.removeItem("loginBandar");
-  location.reload();
+/* ===== SAVE SETTINGS ===== */
+function saveSettings(){
+    settings = {
+        rtp: document.getElementById("rtp").value,
+        winrate: document.getElementById("winrate").value,
+        maxwin: document.getElementById("maxwin").value,
+        freespin: document.getElementById("freespin").checked
+    };
+    localStorage.setItem("gameSettings", JSON.stringify(settings));
+    alert("Pengaturan disimpan!");
+}
+
+/* ===== EDIT SALDO ===== */
+function editSaldo(){
+    let user=document.getElementById("userTarget").value;
+    let amount=parseInt(document.getElementById("saldoEdit").value);
+
+    if(user==="player"){
+        let bal=parseInt(localStorage.getItem("playerBalance"))||0;
+        bal+=amount;
+        localStorage.setItem("playerBalance",bal);
+        alert("Saldo diperbarui!");
+    }
+}
+
+function logout(){
+    window.location.href="index.html";
 }
 </script>
 
