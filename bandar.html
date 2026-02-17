@@ -138,7 +138,9 @@ function renderTable(){
     const table = document.getElementById("transactionTable");
     table.innerHTML="";
 
-    pemainData.forEach((t,index)=>{
+    pemainData
+    .filter(t=>t.status==="pending")
+    .forEach((t,index)=>{
         table.innerHTML+=`
         <tr>
         <td>${t.username}</td>
@@ -148,8 +150,8 @@ function renderTable(){
         <td>${t.tipe} - Rp ${t.jumlah}</td>
         <td>${t.status}</td>
         <td>
-        <button class="approve" onclick="approve(${index})">Approve</button>
-        <button class="reject" onclick="reject(${index})">Reject</button>
+        <button onclick="approve(${index})">Approve</button>
+        <button onclick="reject(${index})">Reject</button>
         </td>
         </tr>
         `;
@@ -159,41 +161,57 @@ function renderTable(){
 function approve(i){
     let pemainData = JSON.parse(localStorage.getItem("pemainData")) || [];
     let players = JSON.parse(localStorage.getItem("players")) || [];
+    let current = JSON.parse(localStorage.getItem("current")) || null;
 
     let trx = pemainData[i];
+    if(!trx) return;
 
-    if(trx.status !== "pending"){
-        alert("Sudah diproses!");
-        return;
-    }
-
-    // Cari player berdasarkan username
-    let player = players.find(p=>p.username === trx.username);
-    if(!player){
+    let playerIndex = players.findIndex(p=>p.username === trx.username);
+    if(playerIndex === -1){
         alert("Player tidak ditemukan");
         return;
     }
 
     if(trx.tipe === "DEPOSIT"){
-        player.saldo += parseInt(trx.jumlah);
+        players[playerIndex].saldo += parseInt(trx.jumlah);
     }
 
     if(trx.tipe === "WITHDRAW"){
-        if(player.saldo < trx.jumlah){
-            alert("Saldo player tidak cukup!");
+        if(players[playerIndex].saldo < trx.jumlah){
+            alert("Saldo tidak cukup!");
             return;
         }
-        player.saldo -= parseInt(trx.jumlah);
+        players[playerIndex].saldo -= parseInt(trx.jumlah);
     }
 
-    trx.status = "approved";
+    // UPDATE current jika player sedang login
+    if(current && current.username === trx.username){
+        current.saldo = players[playerIndex].saldo;
+        localStorage.setItem("current", JSON.stringify(current));
+    }
+
+    // HAPUS transaksi setelah approve
+    pemainData.splice(i,1);
 
     localStorage.setItem("players", JSON.stringify(players));
     localStorage.setItem("pemainData", JSON.stringify(pemainData));
 
-    alert("Transaksi di approve!");
+    alert("Approve berhasil!");
     renderTable();
 }
+
+function reject(i){
+    let pemainData = JSON.parse(localStorage.getItem("pemainData")) || [];
+
+    pemainData.splice(i,1); // langsung hapus
+
+    localStorage.setItem("pemainData", JSON.stringify(pemainData));
+
+    alert("Reject berhasil!");
+    renderTable();
+}
+
+renderTable();
 
 function reject(i){
     let pemainData = JSON.parse(localStorage.getItem("pemainData")) || [];
