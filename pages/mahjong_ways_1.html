@@ -140,10 +140,25 @@ let settings = JSON.parse(localStorage.getItem("gameSettings")) || {
     freespin:true
 };
   
-/* ===== LOAD SALDO DARI MENU ===== */
-let balance = localStorage.getItem("playerBalance") 
-    ? parseInt(localStorage.getItem("playerBalance")) 
-    : 10000;
+function getPlayer(){
+  return JSON.parse(localStorage.getItem("current") || "null");
+}
+
+function savePlayer(p){
+  let players = JSON.parse(localStorage.getItem("players") || "[]");
+  players = players.map(x => x.username === p.username ? p : x);
+  localStorage.setItem("players", JSON.stringify(players));
+  localStorage.setItem("current", JSON.stringify(p));
+}
+
+let player = getPlayer();
+
+if(!player){
+  alert("Login dulu!");
+  window.location.href = "../index.html";
+}
+
+let balance = player.saldo;
 
 let bet = 100;
 let win = 0;
@@ -261,7 +276,8 @@ function spin(){
         document.getElementById("balance").innerText=balance;
         document.getElementById("win").innerText=win;
 
-        localStorage.setItem("playerBalance", balance);
+        player.saldo = balance;
+savePlayer(player);
 
         if(autoSpins>0){
             autoSpins--;
