@@ -156,9 +156,12 @@ let player = getPlayer();
 if(!player){
   alert("Login dulu!");
   window.location.href = "../index.html";
+  throw new Error("Belum login");
 }
 
-let balance = player.saldo;
+let balance = parseInt(player.saldo) || 0;
+
+document.getElementById("balance").innerText = balance;
 
 let bet = 100;
 let win = 0;
