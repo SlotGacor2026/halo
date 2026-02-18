@@ -119,28 +119,12 @@ Jumlah <input type="number" id="saldoEdit">
 </div>
 
 <script>
-/* ===== LOAD TRANSAKSI ===== */
-let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
-let settings = JSON.parse(localStorage.getItem("gameSettings")) || {
-    rtp:80,
-    winrate:40,
-    maxwin:5,
-    freespin:true
-};
-
-document.getElementById("rtp").value=settings.rtp;
-document.getElementById("winrate").value=settings.winrate;
-document.getElementById("maxwin").value=settings.maxwin;
-document.getElementById("freespin").checked=settings.freespin;
-
 function renderTable(){
     let pemainData = JSON.parse(localStorage.getItem("pemainData")) || [];
     const table = document.getElementById("transactionTable");
     table.innerHTML="";
 
-    pemainData
-    .filter(t=>t.status==="pending")
-    .forEach((t,index)=>{
+    pemainData.forEach((t,index)=>{
         table.innerHTML+=`
         <tr>
         <td>${t.username}</td>
@@ -150,15 +134,14 @@ function renderTable(){
         <td>${t.tipe} - Rp ${t.jumlah}</td>
         <td>${t.status}</td>
         <td>
-        <button onclick="approve(${index})">Approve</button>
-        <button onclick="reject(${index})">Reject</button>
+        <button class="approve" onclick="approve(${index})">Approve</button>
+        <button class="reject" onclick="reject(${index})">Reject</button>
         </td>
         </tr>
         `;
     });
 }
 
-function approve(i){
 function approve(i){
     let pemainData = JSON.parse(localStorage.getItem("pemainData")) || [];
     let players = JSON.parse(localStorage.getItem("players")) || [];
@@ -185,75 +168,57 @@ function approve(i){
         players[playerIndex].saldo -= parseInt(trx.jumlah);
     }
 
-    // update current jika login
+    // update current kalau user lagi login
     if(current && current.username === trx.username){
         current.saldo = players[playerIndex].saldo;
         localStorage.setItem("current", JSON.stringify(current));
     }
 
-    // hapus transaksi
+    // update history jadi APPROVED
+    players[playerIndex].history.forEach(h=>{
+        if(h.amount == trx.jumlah && h.status === "PENDING"){
+            h.status = "APPROVED";
+        }
+    });
+
+    // hapus transaksi dari tabel
     pemainData.splice(i,1);
 
     localStorage.setItem("players", JSON.stringify(players));
     localStorage.setItem("pemainData", JSON.stringify(pemainData));
 
+    alert("Transaksi di approve!");
     renderTable();
 }
 
 function reject(i){
     let pemainData = JSON.parse(localStorage.getItem("pemainData")) || [];
+    let players = JSON.parse(localStorage.getItem("players")) || [];
+
+    let trx = pemainData[i];
+    if(!trx) return;
+
+    let playerIndex = players.findIndex(p=>p.username === trx.username);
+
+    if(playerIndex !== -1){
+        players[playerIndex].history.forEach(h=>{
+            if(h.amount == trx.jumlah && h.status === "PENDING"){
+                h.status = "REJECTED";
+            }
+        });
+    }
+
     pemainData.splice(i,1);
-    localStorage.setItem("pemainData", JSON.stringify(pemainData));
-    renderTable();
-    }
-renderTable();
 
-function reject(i){
-    let pemainData = JSON.parse(localStorage.getItem("pemainData")) || [];
-
-    if(pemainData[i].status !== "pending"){
-        alert("Sudah diproses!");
-        return;
-    }
-
-    pemainData[i].status = "rejected";
-
+    localStorage.setItem("players", JSON.stringify(players));
     localStorage.setItem("pemainData", JSON.stringify(pemainData));
 
     alert("Transaksi di reject!");
     renderTable();
 }
 
-renderTable();
-
-/* ===== APPROVE ===== */
-function approve(i){
-    pemainData[i].status="approved";
-
-    let saldo = parseInt(localStorage.getItem("playerBalance")) || 0;
-
-    if(pemainData[i].tipe==="DEPOSIT"){
-        saldo += parseInt(pemainData[i].jumlah);
-    }
-
-    if(pemainData[i].tipe==="WITHDRAW"){
-        saldo -= parseInt(pemainData[i].jumlah);
-    }
-
-    localStorage.setItem("playerBalance", saldo);
-    localStorage.setItem("pemainData", JSON.stringify(pemainData));
-    renderTable();
-}
-
-/* ===== REJECT ===== */
-function reject(i){
-    pemainData[i].status="rejected";
-    localStorage.setItem("pemainData", JSON.stringify(pemainData));
-    renderTable();
-}
-/* ===== SAVE SETTINGS ===== */
 function saveSettings(){
-    settings = {
+    let settings = {
         rtp: document.getElementById("rtp").value,
         winrate: document.getElementById("winrate").value,
         maxwin: document.getElementById("maxwin").value,
@@ -263,22 +228,35 @@ function saveSettings(){
     alert("Pengaturan disimpan!");
 }
 
-/* ===== EDIT SALDO ===== */
 function editSaldo(){
     let user=document.getElementById("userTarget").value;
     let amount=parseInt(document.getElementById("saldoEdit").value);
 
-    if(user==="player"){
-        let bal=parseInt(localStorage.getItem("playerBalance"))||0;
-        bal+=amount;
-        localStorage.setItem("playerBalance",bal);
-        alert("Saldo diperbarui!");
+    let players = JSON.parse(localStorage.getItem("players")) || [];
+    let current = JSON.parse(localStorage.getItem("current")) || null;
+
+    let playerIndex = players.findIndex(p=>p.username === user);
+    if(playerIndex === -1){
+        alert("User tidak ditemukan");
+        return;
     }
+
+    players[playerIndex].saldo += amount;
+
+    if(current && current.username === user){
+        current.saldo = players[playerIndex].saldo;
+        localStorage.setItem("current", JSON.stringify(current));
+    }
+
+    localStorage.setItem("players", JSON.stringify(players));
+    alert("Saldo diperbarui!");
 }
 
 function logout(){
     window.location.href="index.html";
 }
+
+renderTable();
 </script>
 
 </body>
