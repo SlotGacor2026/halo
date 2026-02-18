@@ -159,6 +159,7 @@ function renderTable(){
 }
 
 function approve(i){
+function approve(i){
     let pemainData = JSON.parse(localStorage.getItem("pemainData")) || [];
     let players = JSON.parse(localStorage.getItem("players")) || [];
     let current = JSON.parse(localStorage.getItem("current")) || null;
@@ -184,33 +185,27 @@ function approve(i){
         players[playerIndex].saldo -= parseInt(trx.jumlah);
     }
 
-    // UPDATE current jika player sedang login
+    // update current jika login
     if(current && current.username === trx.username){
         current.saldo = players[playerIndex].saldo;
         localStorage.setItem("current", JSON.stringify(current));
     }
 
-    // HAPUS transaksi setelah approve
+    // hapus transaksi
     pemainData.splice(i,1);
 
     localStorage.setItem("players", JSON.stringify(players));
     localStorage.setItem("pemainData", JSON.stringify(pemainData));
 
-    alert("Approve berhasil!");
     renderTable();
 }
 
 function reject(i){
     let pemainData = JSON.parse(localStorage.getItem("pemainData")) || [];
-
-    pemainData.splice(i,1); // langsung hapus
-
+    pemainData.splice(i,1);
     localStorage.setItem("pemainData", JSON.stringify(pemainData));
-
-    alert("Reject berhasil!");
     renderTable();
-}
-
+    }
 renderTable();
 
 function reject(i){
