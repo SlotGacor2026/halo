@@ -124,9 +124,24 @@
 </div>
 </main>
 
-<!-- AUTH -->
 <div id="authModal" class="modal">
-<h3>Login / Daftar</h3>
+
+<div id="authChoice">
+<h3>Pilih Menu</h3>
+<button onclick="showLogin()">Login</button>
+<button onclick="showRegister()">Daftar</button>
+</div>
+
+<div id="loginForm" style="display:none;">
+<h3>Login</h3>
+<input id="loginUsername" placeholder="Username">
+<input id="loginPassword" type="password" placeholder="Password">
+<button onclick="loginPlayer()">Masuk</button>
+<button onclick="backChoice()">Kembali</button>
+</div>
+
+<div id="registerForm" style="display:none;">
+<h3>Daftar</h3>
 <input id="regUsername" placeholder="Username">
 <input id="regPassword" type="password" placeholder="Password">
 <input id="regConfirm" type="password" placeholder="Konfirmasi Password">
@@ -137,19 +152,28 @@
 
 <select id="regWallet">
 <option value="">Pilih E-Wallet</option>
-<option>DANA</option><option>GOPAY</option><option>OVO</option>
-<option>SHOPEEPAY</option><option>LINKAJA</option>
+<option>DANA</option>
+<option>GOPAY</option>
+<option>OVO</option>
+<option>SHOPEEPAY</option>
+<option>LINKAJA</option>
 </select>
 <input id="regWalletNum" placeholder="Nomor E-Wallet">
 
 <select id="regBank">
 <option value="">Pilih Bank</option>
-<option>BCA</option><option>BRI</option><option>BNI</option>
-<option>MANDIRI</option><option>CIMB</option>
+<option>BCA</option>
+<option>BRI</option>
+<option>BNI</option>
+<option>MANDIRI</option>
+<option>CIMB</option>
 </select>
 <input id="regBankNum" placeholder="Nomor Bank">
 
 <button onclick="registerPlayer()">Konfirmasi</button>
+<button onclick="backChoice()">Kembali</button>
+</div>
+
 </div>
 
 <a id="waButton" href="https://wa.me/6289618602130" target="_blank">
@@ -294,10 +318,46 @@ function logoutPlayer(){
  location.reload();
 }
 
+  function showLogin(){
+  authChoice.style.display="none";
+  loginForm.style.display="block";
+}
+
+function showRegister(){
+  authChoice.style.display="none";
+  registerForm.style.display="block";
+}
+
+function backChoice(){
+  loginForm.style.display="none";
+  registerForm.style.display="none";
+  authChoice.style.display="block";
+}
+
+function loginPlayer(){
+  const u = loginUsername.value;
+  const pw = loginPassword.value;
+
+  let players = JSON.parse(localStorage.players||"[]");
+
+  let user = players.find(x=>x.username===u && x.password===pw);
+
+  if(!user) return alert("Username / Password salah!");
+
+  localStorage.current = JSON.stringify(user);
+  location.reload();
+}
+
 window.onload=()=>{
  let p=getPlayer();
- if(!p) authModal.style.display="block";
- else updateSaldo();
+ if(!p){
+   authModal.style.display="block";
+   authChoice.style.display="block";
+   loginForm.style.display="none";
+   registerForm.style.display="none";
+ } else {
+   updateSaldo();
+ }
 }
 
 function goPage(page){
